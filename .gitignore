@@ -1,0 +1,16 @@
+TAGS
+*~
+.*~
+*.pyc
+.#*
+#*#
+*/*~
+*/.*~
+*/*.pyc
+*/.#*
+*/#*#
+*/*.so
+build/
+examples/.meta*
+examples/*_wrapper.c
+examples/*build*
