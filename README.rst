@@ -16,7 +16,7 @@ Installation
 Example using pip (modify to your own needs):
 
     1. ``pip install --user --upgrade -r https://raw.github.com/bjodah/pycodeexport/master/requirements.txt``
-    2. ``pip install --user --upgrade https://github.com/bjodah/pycodeexport/archive/v0.2.19.tar.gz``
+    2. ``pip install --user --upgrade https://github.com/bjodah/pycodeexport/archive/master.tar.gz``
 
 
 Templating

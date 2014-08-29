@@ -4,8 +4,8 @@
    This is a Mako (docs.makotemplates.org/) templated C99-source code
 </%doc>
 
-##// Essentially "import pycompilation.codeexport as ce"
-<%namespace name="ce" module="pycompilation.codeexport"/>
+##// Essentially "import pycodeexport.codeexport as ce"
+<%namespace name="ce" module="pycodeexport.codeexport"/>
 
 ## Mako namespace uses a functools.partial shim, hence .func
 <%def name="render_group(group)">

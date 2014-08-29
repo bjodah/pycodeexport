@@ -1,1 +1,2 @@
-https://github.com/bjodah/pycompilation/archive/v0.2.19.tar.gz
+sympy>=0.7.4
+https://github.com/bjodah/pycompilation/archive/v0.3-dev.tar.gz

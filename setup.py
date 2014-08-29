@@ -7,7 +7,7 @@ name_ = 'pycodeexport'
 version_ = '0.0.1-dev'
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Operating System :: POSIX",

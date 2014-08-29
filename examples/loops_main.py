@@ -6,7 +6,8 @@ from collections import defaultdict
 import numpy as np
 import sympy
 
-from pycompilation.codeexport import C_Code, Loop
+from pycodeexport.codeexport import C_Code, Loop
+
 
 def get_statements(eq, taken=None):
     """
@@ -41,18 +42,19 @@ def get_idxs(exprs):
     for expr in (exprs):
         for i in expr.find(sympy.Idx):
             idxs.add(i)
-    return sorted(idxs, cmp=lambda x,y: str(x)<str(y))
-
+    return sorted(idxs, cmp=lambda x, y: str(x) < str(y))
 
 
 class ExampleCode(C_Code):
     """
     Render _arbitrary_func to do loops
     """
-    CompilerRunner = None # auto-detect
+
+    CompilerRunner = None  # auto-detect
     templates = ['loops_template.c']
     source_files = ['loops.c',
                     'loops_wrapper.pyx']
+    compile_kwargs = {'std': 'c99'}
     build_files = ['loops_wrapper.pyx']
     obj_files = [
         'loops.o',
@@ -65,11 +67,11 @@ class ExampleCode(C_Code):
         self.inputs = inputs
         self.indices = indices
         assert get_idxs(self.exprs) == sorted(
-            indices, cmp=lambda x,y: str(x)<str(y)) # sanity check
+            indices, cmp=lambda x, y: str(x) < str(y))  # sanity check
 
         # list of lists of indices present in each expr
         self._exprs_idxs = [
-            tuple(filter(expr.find, self.indices)) for\
+            tuple(filter(expr.find, self.indices)) for
             expr in self.exprs
         ]
 
@@ -81,7 +83,6 @@ class ExampleCode(C_Code):
 
         super(ExampleCode, self).__init__(**kwargs)
 
-
     def _mk_recursive_loop(self, idxs, body):
         if len(idxs) == 0:
             return body
@@ -92,7 +93,6 @@ class ExampleCode(C_Code):
                 self.indices.index(idx),
                 self._mk_recursive_loop(idxs[1:], body)
             )
-
 
     def variables(self):
         expr_groups = []
@@ -109,9 +109,9 @@ class ExampleCode(C_Code):
             if isinstance(inp, sympy.Indexed):
                 aliases.append(
                     "const double * const {} = inpd + {};".format(
-                        inp.indices[0].label, cumul_inplen))
-                cumul_inplen += inp.indices[0].upper-\
-                                inp.indices[0].lower
+                        #inp.indices[0].label, cumul_inplen))
+                        inp.base.label, cumul_inplen))
+                cumul_inplen += inp.indices[0].upper - inp.indices[0].lower
             else:
                 aliases.append(
                     "const double {} = inpd[{}];".format(
@@ -122,13 +122,12 @@ class ExampleCode(C_Code):
         for out in self.unk:
             if isinstance(out, sympy.Indexed):
                 aliases.append(
-                    "const double * const {} = outd + {};".format(
-                        out.indices[0].label, cumul_outlen))
-                cumul_outlen += out.indices[0].upper-\
-                                out.indices[0].lower
+                    "double * const {} = outd + {};".format(
+                        out.base.label, cumul_outlen))
+                cumul_outlen += out.indices[0].upper - out.indices[0].lower
             else:
                 aliases.append(
-                    "const double {} = outd[{}];".format(
+                    "double * {} = &outd[{}];".format(
                         out, cumul_outlen))
                 cumul_outlen += 1
 
@@ -138,12 +137,11 @@ class ExampleCode(C_Code):
             'expr_groups': expr_groups
         }
 
-
     def __call__(self, inp, bounds=None, inpi=None):
         inpd = np.ascontiguousarray(np.concatenate(
             [[x] if isinstance(x, float) else x for x in inp]))
         assert all([len(u.indices) == 1 for u in self.unk])
-        noutd = sum([u.indices[0].upper-u.indices[0].lower for u\
+        noutd = sum([u.indices[0].upper-u.indices[0].lower for u
                      in self.unk])
         nouti = 0
         outd, outi = self.mod.arbitrary_func(
@@ -172,7 +170,6 @@ def model1(inps, lims, logger=None):
     j_bs = sympy.symbols('j_lb j_ub', integer=True)
     j = sympy.Idx('j', j_bs)
 
-
     # a_size >= i_ub - i_lb
     a_size = sympy.Symbol('a_size', integer=True)
     a = sympy.IndexedBase('a', shape=(a_size,))
@@ -195,7 +192,7 @@ def model1(inps, lims, logger=None):
         (a_arr/3-1)**np.arange(ilim[0], ilim[1]+1) + c_)
     assert np.allclose(
         y_,
-        a_arr - np.arange(jlim[0],jlim[1]+1))
+        a_arr - np.arange(jlim[0], jlim[1]+1))
 
 
 def model2():
@@ -204,10 +201,11 @@ def model2():
     """
     pass
 
+
 def main(logger=None):
-    a_arr = np.linspace(0,10,11)
+    a_arr = np.linspace(0, 10, 11)
     c_ = 3.5
-    model1([a_arr, c_], [(0,11), (0,7)], logger=logger)
+    model1([a_arr, c_], [(0, 11), (0, 7)], logger=logger)
 
 
 if __name__ == '__main__':

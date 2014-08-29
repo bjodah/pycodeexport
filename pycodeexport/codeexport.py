@@ -32,10 +32,11 @@ from operator import add
 # External imports
 import sympy
 
-
 # Intrapackage imports
 from pycompilation._helpers import defaultnamedtuple
-from pycompilation.util import import_, render_mako_template_to, copy
+from pycompilation.util import (
+    import_module_from_file, render_mako_template_to, copy
+)
 from pycompilation.compilation import (
     FortranCompilerRunner, CCompilerRunner,
     CppCompilerRunner, link_py_so, compile_sources)
@@ -84,20 +85,21 @@ def syntaxify_getitem(syntax, scode, basename, token, offset=None,
             offset=-3, dim=-1)
     'yout(7-3,:) = x_7+i;'
     """
-    if syntax == 'C': assert dim == 0 # C does not support broadcasting
+    if syntax == 'C':
+        assert dim == 0  # C does not support broadcasting
     if isinstance(offset, int):
         offset_str = '{0:+d}'.format(offset)
-    elif offset == None:
+    elif offset is None:
         offset_str = ''
     else:
         offset_str = '+'+str(offset)
 
     c_tgt = token+r'[\1'+offset_str+']'
     if dim > 0:
-        f_tgt = token+'('+':,'*dim+r'\1'+offset_str+')' # slow!
+        f_tgt = token+'('+':,'*dim+r'\1'+offset_str+')'  # slow!
     else:
-        f_tgt = token+'('+r'\1'+offset_str+',:'*-dim+')' # fast!
-    tgt = {'C':c_tgt, 'F':f_tgt}.get(syntax)
+        f_tgt = token+'('+r'\1'+offset_str+',:'*-dim+')'  # fast!
+    tgt = {'C': c_tgt, 'F': f_tgt}.get(syntax)
     return re.sub(basename+match_regex, tgt, scode)
 
 
@@ -110,7 +112,7 @@ class Interceptor(object):
 
     def __init__(self, binary_path):
         self._binary_path = binary_path
-        self._binary_mod = import_(self._binary_path)
+        self._binary_mod = import_module_from_file(self._binary_path)
 
     def __getattr__(self, key):
         if key == '__file__':
@@ -119,7 +121,7 @@ class Interceptor(object):
         if self._binary_mod.__file__ != self._binary_path:
             # Avoid singleton behaviour. (Python changes binary path
             # inplace without changing id of Python object)
-            self._binary_mod = import_(self._binary_path)
+            self._binary_mod = import_module_from_file(self._binary_path)
         return getattr(self._binary_mod, key)
 
 
@@ -136,10 +138,10 @@ class Generic_Code(object):
       Fortran 2008 (free form) is assumed for 'F'
     """
 
-    CompilerRunner = None # Set to compilation.CompilerRunner subclass
+    CompilerRunner = None  # Set to compilation.CompilerRunner subclass
 
     syntax = None
-    fort = False # a form of fortran code? (decisive for linking)
+    fort = False  # a form of fortran code? (decisive for linking)
     tempdir_basename = 'generic_code'
     _basedir = None
     _cached_files = None
@@ -150,15 +152,15 @@ class Generic_Code(object):
     extension_name = 'generic_extension'
     so_file = None
     extension_name = None
-    compile_kwargs = None # kwargs passed to CompilerRunner
+    compile_kwargs = None  # kwargs passed to CompilerRunner
 
     list_attributes = (
-        '_written_files', # Track what files are written
+        '_written_files',  # Track what files are written
         'build_files',   # Files to be copied prior to compilation
         'source_files',
         'templates',
         'obj_files',
-        '_cached_files', # Files to be removed between compilations
+        '_cached_files',  # Files to be removed between compilations
     )
 
     def __init__(self, tempdir=None, save_temp=False, logger=None):
@@ -200,11 +202,10 @@ class Generic_Code(object):
         self.compile_kwargs = self.compile_kwargs or {}
 
         # If .pyx files in self.templates, add .c file to _cached_files
-        self._cached_files += [x.replace('_template','').replace(
-            '.pyx','.c') for x in self.templates if x.endswith('.pyx')]
+        self._cached_files += [x.replace('_template', '').replace(
+            '.pyx', '.c') for x in self.templates if x.endswith('.pyx')]
 
         self.write_code()
-
 
     def variables(self):
         """
@@ -214,7 +215,6 @@ class Generic_Code(object):
         """
         # To be overloaded
         return {}
-
 
     def as_arrayified_code(self, expr, dummy_groups=(),
                            arrayify_groups=(), **kwargs):
@@ -233,7 +233,6 @@ class Generic_Code(object):
 
         return scode
 
-
     def get_cse_code(self, exprs, basename=None,
                      dummy_groups=(), arrayify_groups=()):
         """
@@ -243,18 +242,20 @@ class Generic_Code(object):
         -`basename`: stem of variable names (default: cse)
         -`dummy_groups`: tuple of
         """
-        if basename == None: basename = 'cse'
+        if basename is None:
+            basename = 'cse'
         cse_defs, cse_exprs = sympy.cse(
             exprs, symbols=sympy.numbered_symbols(basename))
 
         # Let's convert the new expressions into (arrayified) code
-        cse_defs_code = [(vname, self.as_arrayified_code(
-            vexpr, dummy_groups, arrayify_groups)) for \
-                         vname, vexpr in cse_defs]
+        cse_defs_code = [
+            (vname, self.as_arrayified_code(
+                vexpr, dummy_groups, arrayify_groups))
+            for vname, vexpr in cse_defs
+        ]
         cse_exprs_code = [self.as_arrayified_code(
             x, dummy_groups, arrayify_groups) for x in cse_exprs]
         return cse_defs_code, cse_exprs_code
-
 
     def write_code(self):
         for path in self._cached_files:
@@ -265,8 +266,7 @@ class Generic_Code(object):
         for path in self.build_files:
             # Copy files
             srcpath = os.path.join(self._basedir, path)
-            dstpath = os.path.join(self._tempdir,
-                         os.path.basename(path))
+            dstpath = os.path.join(self._tempdir, os.path.basename(path))
             copy(srcpath, dstpath)
             self._written_files.append(dstpath)
 
@@ -280,8 +280,8 @@ class Generic_Code(object):
             render_mako_template_to(srcpath, outpath, subs)
             self._written_files.append(outpath)
 
-
     _mod = None
+
     @property
     def mod(self):
         """
@@ -289,14 +289,12 @@ class Generic_Code(object):
         if you want to clear the cache do:
         >>> my_code_class_instance.clear_mod_cache()
         """
-        if self._mod == None:
+        if self._mod is None:
             self._mod = self.compile_and_import_binary()
         return self._mod
 
-
     def clear_mod_cache(self):
         self._mod = None
-
 
     def compile_and_import_binary(self):
         """
@@ -318,11 +316,9 @@ class Generic_Code(object):
         self._compile()
         return Interceptor(self.binary_path)
 
-
     @property
     def binary_path(self):
         return os.path.join(self._tempdir, self.so_file)
-
 
     def clean(self):
         """ Delete temp dir if not save_temp set at __init__ """
@@ -331,7 +327,6 @@ class Generic_Code(object):
             if self._remove_tempdir_on_clean:
                 shutil.rmtree(self._tempdir)
 
-
     def __del__(self):
         """
         When Generic_Code object is collected by GC
@@ -339,11 +334,9 @@ class Generic_Code(object):
         """
         self.clean()
 
-
     def _compile(self):
         self._compile_obj()
         self._compile_so()
-
 
     def _compile_obj(self, sources=None):
         sources = sources or self.source_files
@@ -352,11 +345,10 @@ class Generic_Code(object):
                         logger=self.logger,
                         **self.compile_kwargs)
 
-
     def _compile_so(self):
         link_py_so(self.obj_files,
                    so_file=self.so_file,
-                      cwd=self._tempdir,
+                   cwd=self._tempdir,
                    fort=self.fort,
                    logger=self.logger,
                    **self.compile_kwargs)
@@ -377,14 +369,13 @@ class Cython_Code(Generic_Code):
     def _compile(self):
         sources = [os.path.join(
             self._tempdir, os.path.basename(x).replace(
-                '_template', '')) for x \
-            in self.source_files]
+                '_template', '')) for x in self.source_files]
         setup(
-            script_name = 'DUMMY_SCRIPT_NAME',
-            script_args = ['build_ext',  '--build-lib', self._tempdir],
-            include_dirs = self._include_dirs,
-            cmdclass = {'build_ext': build_ext},
-            ext_modules = [
+            script_name='DUMMY_SCRIPT_NAME',
+            script_args=['build_ext',  '--build-lib', self._tempdir],
+            include_dirs=self._include_dirs,
+            cmdclass={'build_ext': build_ext},
+            ext_modules=[
                 Extension(
                     self.extension_name,
                     sources,
@@ -463,29 +454,30 @@ def make_CleverExtension_for_prebuilding_Code(
     from .dist import CleverExtension
 
     build_files = []
-    dist_files = [(os.path.join(srcdir, x[0]), x[1]) for x \
-                  in getattr(Code, 'dist_files', [])]
+    dist_files = [(os.path.join(srcdir, x[0]), x[1]) for
+                  x in getattr(Code, 'dist_files', [])]
     for attr in ('build_files', 'templates'):
         for cf in getattr(Code, attr, []) or []:
             if not cf.startswith('prebuilt'):
                 build_files.append(os.path.join(srcdir, cf))
                 dist_files.append((os.path.join(srcdir, cf), None))
 
-
     def prebuilder(build_temp, ext_fullpath, ext,
                    src_paths, **prebuilder_kwargs):
         build_temp = os.path.abspath(build_temp)
-        if not os.path.isdir(build_temp): make_dirs(build_temp)
+        if not os.path.isdir(build_temp):
+            make_dirs(build_temp)
 
         if downloads:
             websrc, src_md5 = downloads
             download_dir = os.path.join(build_temp, srcdir)
-            if not os.path.isdir(download_dir): make_dirs(download_dir)
+            if not os.path.isdir(download_dir):
+                make_dirs(download_dir)
             download_files(websrc, src_md5.keys(), src_md5,
                            cwd=download_dir, logger=ext.logger)
 
         for p in src_paths:
-            if not p in build_files:
+            if p not in build_files:
                 copy(os.path.join(srcdir, p),
                      os.path.join(build_temp, srcdir),
                      dest_is_dir=True, create_dest_dirs=True,
