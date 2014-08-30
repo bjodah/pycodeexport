@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+import os
 
 import numpy as np
 import sympy
@@ -50,7 +51,7 @@ class ExampleCode(C_Code):
     Render _arbitrary_func to do loops
     """
 
-    CompilerRunner = None  # auto-detect
+    basedir = os.path.dirname(__file__)
     templates = ['loops_template.c']
     source_files = ['loops.c',
                     'loops_wrapper.pyx']
@@ -90,7 +91,7 @@ class ExampleCode(C_Code):
             idx = idxs[0]
             return Loop(
                 idx.label,
-                self.indices.index(idx),
+                (idx.lower, idx.upper),
                 self._mk_recursive_loop(idxs[1:], body)
             )
 
@@ -104,6 +105,13 @@ class ExampleCode(C_Code):
             expr_groups.append(self._mk_recursive_loop(
                 idxs, expr_code))
         aliases = []
+
+        for number, ind in enumerate(self.indices):
+            aliases.extend([
+                "const int {} = bnds[{}*2];".format(ind.lower, number),
+                "const int {} = bnds[{}*2+1];".format(ind.upper, number)
+            ])
+
         cumul_inplen = 0
         for inp in self.inputs:
             if isinstance(inp, sympy.Indexed):
@@ -131,25 +139,35 @@ class ExampleCode(C_Code):
                         out, cumul_outlen))
                 cumul_outlen += 1
 
-        print(aliases)
         return {
             'aliases': aliases,
             'expr_groups': expr_groups
         }
 
     def __call__(self, inp, bounds=None, inpi=None):
-        inpd = np.ascontiguousarray(np.concatenate(
-            [[x] if isinstance(x, float) else x for x in inp]))
+        inp_arr = np.ascontiguousarray(np.concatenate(
+            [[x] if isinstance(x, float) else x for x in inp])
+                                       , dtype=np.float64)
+        bounds_arr = np.ascontiguousarray(bounds, dtype=np.int32).flatten()
+        if inpi is None:
+            inpi_arr = np.empty((0,), dtype=np.int32)
+        else:
+            inpi_arr = np.ascontiguousarray(inpi, dtype=np.int32)
         assert all([len(u.indices) == 1 for u in self.unk])
+        index_subsd = {}
+        for idx, pair in zip(self.indices, bounds):
+            index_subsd[idx.lower] = pair[0]
+            index_subsd[idx.upper] = pair[1]
         noutd = sum([u.indices[0].upper-u.indices[0].lower for u
-                     in self.unk])
+                     in self.unk]).subs(index_subsd)
         nouti = 0
         outd, outi = self.mod.arbitrary_func(
-            bounds, inpd, inpi, noutd, nouti)
+            bounds_arr, inp_arr, inpi_arr, noutd, nouti)
         output = []
         i = 0
         for u in self.unk:
             n = u.indices[0].upper-u.indices[0].lower
+            n = n.subs(index_subsd)
             output.append(outd[i:i+n])
             i += n
 
@@ -186,20 +204,11 @@ def model1(inps, lims, logger=None):
 
     ex_code = ExampleCode(eqs, (a[i], c), (i, j),
                           logger=logger, save_temp=True)
-    x_, y_ = ex_code(inps, bounds=(i_bs, j_bs))
-    assert np.allclose(
-        x_,
-        (a_arr/3-1)**np.arange(ilim[0], ilim[1]+1) + c_)
-    assert np.allclose(
-        y_,
-        a_arr - np.arange(jlim[0], jlim[1]+1))
-
-
-def model2():
-    """
-    y[j] = Sum(a[i], i, j-2, j+2)
-    """
-    pass
+    x_, y_ = ex_code(inps, bounds=(ilim, jlim))
+    x_ref = (a_arr/3-1)**np.arange(ilim[0], ilim[1]) + c_
+    y_ref = a_arr[jlim[0]:jlim[1]] - np.arange(jlim[0], jlim[1])
+    assert np.allclose(x_, x_ref)
+    assert np.allclose(y_, y_ref)
 
 
 def main(logger=None):

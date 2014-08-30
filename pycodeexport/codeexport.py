@@ -23,6 +23,7 @@ the problem at hand (personal opinion).
 import tempfile
 import shutil
 import re
+import sys
 import os
 
 from collections import OrderedDict, namedtuple
@@ -42,7 +43,7 @@ from pycompilation.compilation import (
     CppCompilerRunner, link_py_so, compile_sources)
 
 
-Loop = namedtuple('Loop', ('counter', 'bounds_idx', 'body'))
+Loop = namedtuple('Loop', ('counter', 'bounds', 'body'))
 
 # DummyGroup instances are used in transformation from sympy expression
 # into code. It is used to protect symbols from being operated upon.
@@ -130,7 +131,7 @@ class Generic_Code(object):
     Attributes to optionally override:
     -`syntax`: any of the supported syntaxes ('C' or 'F')
     -`tempdir_basename`: basename of tempdirs created in e.g. /tmp/
-    -`_basedir` the path to the directory which relative (source)
+    -`basedir` the path to the directory which relative (source)
     paths are given to
 
     Regarding syntax:
@@ -143,7 +144,7 @@ class Generic_Code(object):
     syntax = None
     fort = False  # a form of fortran code? (decisive for linking)
     tempdir_basename = 'generic_code'
-    _basedir = None
+    basedir = None
     _cached_files = None
     build_files = None
     source_files = None
@@ -178,7 +179,10 @@ class Generic_Code(object):
             self.wcode = partial(
                 sympy.fcode, source_format='free', contract=False)
 
-        self._basedir = self._basedir or '.'
+        self.basedir = self.basedir or "."
+        # setting basedir to:
+        # os.path.dirname(sys.modules[self.__class__.__module__].__file__)
+        # gives problems when using e.g. pudb.
 
         if tempdir:
             self._tempdir = tempdir
@@ -265,7 +269,7 @@ class Generic_Code(object):
                 os.unlink(rel_path)
         for path in self.build_files:
             # Copy files
-            srcpath = os.path.join(self._basedir, path)
+            srcpath = os.path.join(self.basedir, path)
             dstpath = os.path.join(self._tempdir, os.path.basename(path))
             copy(srcpath, dstpath)
             self._written_files.append(dstpath)
@@ -273,7 +277,7 @@ class Generic_Code(object):
         subs = self.variables()
         for path in self.templates:
             # Render templates
-            srcpath = os.path.join(self._basedir, path)
+            srcpath = os.path.join(self.basedir, path)
             outpath = os.path.join(
                 self._tempdir,
                 os.path.basename(path).replace('_template', ''))
@@ -346,12 +350,13 @@ class Generic_Code(object):
                         **self.compile_kwargs)
 
     def _compile_so(self):
-        link_py_so(self.obj_files,
-                   so_file=self.so_file,
-                   cwd=self._tempdir,
-                   fort=self.fort,
-                   logger=self.logger,
-                   **self.compile_kwargs)
+        so_file = link_py_so(self.obj_files,
+                             so_file=self.so_file,
+                             cwd=self._tempdir,
+                             fort=self.fort,
+                             logger=self.logger,
+                             **self.compile_kwargs)
+        self.so_file = self.so_file or so_file
 
 
 class Cython_Code(Generic_Code):
@@ -427,7 +432,7 @@ class F90_Code(Generic_Code):
     def _get_module_files(self, files):
         names = []
         for f in files:
-            with open(os.path.join(self._basedir, f), 'rt') as fh:
+            with open(os.path.join(self.basedir, f), 'rt') as fh:
                 for line in fh:
                     stripped_lower = line.strip().lower()
                     if stripped_lower.startswith('module'):

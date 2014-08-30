@@ -19,8 +19,8 @@
 </%def>
 
 
-<%def name="nested_loop(ctr, i, body, typ='int')">
-  for (${typ} ${ctr}=bnds[${i}*2]; ${ctr}<bnds[${i}*2+1]; ++${ctr}){ 
+<%def name="nested_loop(ctr, bounds, body, typ='int')">
+  for (${typ} ${ctr}=${bounds[0]}; ${ctr}<${bounds[1]}; ++${ctr}){ 
     ${render_group(body)}
   }
 </%def>
