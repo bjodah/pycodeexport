@@ -117,7 +117,6 @@ class ExampleCode(C_Code):
             if isinstance(inp, sympy.Indexed):
                 aliases.append(
                     "const double * const {} = inpd + {};".format(
-                        #inp.indices[0].label, cumul_inplen))
                         inp.base.label, cumul_inplen))
                 cumul_inplen += inp.indices[0].upper - inp.indices[0].lower
             else:
@@ -146,8 +145,8 @@ class ExampleCode(C_Code):
 
     def __call__(self, inp, bounds=None, inpi=None):
         inp_arr = np.ascontiguousarray(np.concatenate(
-            [[x] if isinstance(x, float) else x for x in inp])
-                                       , dtype=np.float64)
+            [[x] if isinstance(x, float) else x for x in inp]
+        ), dtype=np.float64)
         bounds_arr = np.ascontiguousarray(bounds, dtype=np.int32).flatten()
         if inpi is None:
             inpi_arr = np.empty((0,), dtype=np.int32)
@@ -188,14 +187,12 @@ def model1(inps, lims, logger=None):
     j_bs = sympy.symbols('j_lb j_ub', integer=True)
     j = sympy.Idx('j', j_bs)
 
-    # a_size >= i_ub - i_lb
-    a_size = sympy.Symbol('a_size', integer=True)
-    a = sympy.IndexedBase('a', shape=(a_size,))
+    a = sympy.IndexedBase('a')
 
     c = sympy.Symbol('c', real=True)
 
-    x = sympy.IndexedBase('x', shape=(a_size,))
-    y = sympy.IndexedBase('y', shape=(a_size,))
+    x = sympy.IndexedBase('x')
+    y = sympy.IndexedBase('y')
 
     eqs = [
         sympy.Eq(x[i], (a[i]/3-1)**i+c),

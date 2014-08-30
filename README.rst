@@ -1,4 +1,4 @@
-NOTE: PRE ALPHA DO NOT USE
+NOTE: PRE ALPHA DO NOT USE IN PRODUCTION.
 
 ============
 pycodeexport
@@ -8,7 +8,7 @@ pycodeexport
    :target: https://travis-ci.org/bjodah/pycodeexport
 
 pycodeexport bundles python convenience classes and functions for code-generation.
-Developed with on the fly compilation (meta-programming) of math related problems 
+Developed to ease on-the-fly compilation (meta-programming) of math related problems 
 using the SymPy package.
 
 Installation
@@ -21,10 +21,11 @@ Example using pip (modify to your own needs):
 
 Templating
 ==========
+Mako_ comes highly recommended as a template engine. 
+For easier usage, a convenience method is provided in ``pycodeexport.util``.
+The ``Code`` classes in ``pycodeexport.codeexport`` use this too.
 
-Mako comes highly recommended as a template engine. For easier usage, a convenience method is provided in ``pycodeexport.util``.
-The Code classes in ``pycodeexport.codeexport`` use this too.
-
+.. _Mako: http://www.makotemplates.org/
 
 
 Examples
