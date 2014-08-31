@@ -1,5 +1,5 @@
 import os
-from pycompilation.util import md5_of_file, missing_or_other_newer, get_abspath
+from pycompilation.util import md5_of_file, missing_or_other_newer, get_abspath, make_dirs
 
 def render_mako_template_to(
         template, outpath, subsd, only_update=False, cwd=None,
