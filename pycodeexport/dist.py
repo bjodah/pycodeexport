@@ -15,7 +15,7 @@ from pycompilation.compilation import (
     compile_sources, link_py_so, any_fort,
     any_cplus
 )
-from .pycompilation.util import (
+from pycompilation.util import (
     copy, get_abspath, import_module_from_file,
     MetaReaderWriter, FileNotFoundError
 )
@@ -23,7 +23,7 @@ from .pycompilation.util import (
 from .util import render_mako_template_to
 
 
-def CleverExtension(*args, **kwargs):
+def PCEExtension(*args, **kwargs):
     """
     Parameters
     ==========
@@ -64,7 +64,7 @@ def CleverExtension(*args, **kwargs):
         # interpret as we should instantiate a logger
         import logging
         logging.basicConfig(level=logging.DEBUG)
-        vals['logger'] = logging.getLogger('CleverExtension')
+        vals['logger'] = logging.getLogger('PCEExtension')
 
     for k, v in vals.items():
         setattr(instance, k, v)
@@ -72,9 +72,9 @@ def CleverExtension(*args, **kwargs):
     return instance
 
 
-class clever_build_ext(build_ext.build_ext):
+class pce_build_ext(build_ext.build_ext):
     """
-    build_ext class for CleverExtension
+    build_ext class for PCEExtension
     Support for template_regexps
     """
     def _copy_or_render_source(self, ext, f):

@@ -1,2 +1,2 @@
-sympy>=0.7.4
-https://github.com/bjodah/pycompilation/archive/v0.3-dev.tar.gz
+sympy>=0.7.5
+https://github.com/bjodah/pycompilation/archive/v0.3.0.tar.gz

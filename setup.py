@@ -4,7 +4,7 @@
 from distutils.core import setup
 
 name_ = 'pycodeexport'
-version_ = '0.0.1'
+version_ = '0.0.2'
 
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",

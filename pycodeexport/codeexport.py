@@ -32,16 +32,16 @@ from operator import add
 
 # External imports
 import sympy
-
-# Intrapackage imports
 from pycompilation._helpers import defaultnamedtuple
 from pycompilation.util import (
-    import_module_from_file, render_mako_template_to, copy
+    import_module_from_file, copy, make_dirs
 )
 from pycompilation.compilation import (
     FortranCompilerRunner, CCompilerRunner,
     CppCompilerRunner, link_py_so, compile_sources)
 
+# Intrapackage imports
+from .util import render_mako_template_to, download_files
 
 Loop = namedtuple('Loop', ('counter', 'bounds', 'body'))
 
@@ -441,22 +441,21 @@ class F90_Code(Generic_Code):
         return names
 
 
-def make_CleverExtension_for_prebuilding_Code(
+def make_PCEExtension_for_prebuilding_Code(
         name, Code, prebuild_sources, srcdir,
         downloads=None, **kwargs):
     """
     If subclass of codeexport.Generic_Code needs to have some of it
     sources compiled to objects and cached in a `prebuilt/` directory
     at invocation of `setup.py build_ext` this convenience function
-    makes setting up a CleverExtension easier. Use together with
-    cmdclass = {'build_ext': clever_build_ext}.
+    makes setting up a PCEExtension easier. Use together with
+    cmdclass = {'build_ext': pce_build_ext}.
 
     files called ".metadata*" will be added to dist_files
     """
 
     import glob
-    from .util import download_files, make_dirs
-    from .dist import CleverExtension
+    from .dist import PCEExtension
 
     build_files = []
     dist_files = [(os.path.join(srcdir, x[0]), x[1]) for
@@ -508,7 +507,7 @@ def make_CleverExtension_for_prebuilding_Code(
     compile_kwargs = Code.compile_kwargs.copy()
     logger = kwargs.pop('logger', True)
     compile_kwargs.update(kwargs)
-    return CleverExtension(
+    return PCEExtension(
         name,
         [],
         build_files=build_files,

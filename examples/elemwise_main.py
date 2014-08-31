@@ -12,9 +12,9 @@ from itertools import product
 from operator import add, mul, sub, truediv, pow
 
 import numpy as np
-
 from pycompilation import compile_sources, link_py_so, import_module_from_file
-from pycompilation.util import render_mako_template_to
+
+from pycodeexport.util import render_mako_template_to
 
 
 def run_compilation(tempd, logger=None):
