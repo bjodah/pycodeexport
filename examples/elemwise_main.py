@@ -21,9 +21,10 @@ def run_compilation(tempd, logger=None):
     # Let's compile elemwise.c and wrap it using cython
     # source in elemwise_wrapper.pyx
 
-    compile_sources(['elemwise.c', 'elemwise_wrapper.pyx'], cwd=tempd,
-                    options=['pic', 'warn', 'fast', 'openmp'],
-                    std='c99', run_linker=False, logger=logger)
+    compile_sources(
+        ['elemwise.c', 'elemwise_wrapper.pyx'], cwd=tempd, options=[
+            'pic', 'warn', 'fast', 'openmp'], inc_dirs=[np.get_include()],
+        std='c99', run_linker=False, logger=logger)
 
     so_file = link_py_so(['elemwise.o', 'elemwise_wrapper.o'],
                          options=['openmp'], cwd=tempd, logger=logger)

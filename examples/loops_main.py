@@ -43,7 +43,7 @@ def get_idxs(exprs):
     for expr in (exprs):
         for i in expr.find(sympy.Idx):
             idxs.add(i)
-    return sorted(idxs, cmp=lambda x, y: str(x) < str(y))
+    return sorted(idxs, key=str)
 
 
 class ExampleCode(C_Code):
@@ -55,7 +55,11 @@ class ExampleCode(C_Code):
     templates = ['loops_template.c']
     source_files = ['loops.c',
                     'loops_wrapper.pyx']
-    compile_kwargs = {'std': 'c99'}
+    compile_kwargs = {
+        'std': 'c99',
+        'libs': ['m'],
+        'inc_dirs': [np.get_include()]
+    }
     build_files = ['loops_wrapper.pyx']
     obj_files = [
         'loops.o',
@@ -68,7 +72,7 @@ class ExampleCode(C_Code):
         self.inputs = inputs
         self.indices = indices
         assert get_idxs(self.exprs) == sorted(
-            indices, cmp=lambda x, y: str(x) < str(y))  # sanity check
+            indices, key=str)  # sanity check
 
         # list of lists of indices present in each expr
         self._exprs_idxs = [
