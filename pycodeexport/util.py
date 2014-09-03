@@ -1,4 +1,12 @@
+# -*- coding: utf-8 -*-
+from __future__ import (
+    print_function, division, absolute_import, unicode_literals
+)
+
 import os
+
+from collections import namedtuple, OrderedDict
+
 from pycompilation.util import md5_of_file, missing_or_other_newer, get_abspath, make_dirs
 
 def render_mako_template_to(
@@ -98,3 +106,65 @@ def download_files(websrc, files, md5sums, cwd=None,
                      f, fmd5, md5sums[f]))
         dest_paths.append(get_abspath(fpath, cwd=cwd))
     return dest_paths
+
+
+def defaultnamedtuple(name, args, defaults=(), typing=()):
+    """
+    defaultnamedtuple returns a new subclass of Tuple with named fields
+    and a constructor with implicit default values.
+
+    Parameters
+    ==========
+    name: string
+         the name of the class
+    args: tuple
+        a tuple or a splitable string
+    defaults: iterable
+        default values for args, counting [-len(defaults):]
+    typing`: iterable of callbacks
+        optional requirements for type, counting [:len(typing)]
+        should be an iterable of callbacks returning True for
+        conformance.
+
+    Examples
+    ========
+    >>> Body = namedtuple('Body', 'x y z density', (1.0,))
+    >>> Body.__doc__
+    SOMETHING
+    >>> b = Body(10, z=3, y=5)
+    >>> b._asdict()
+    {'density': 1.0, 'x': 10, 'y': 5, 'z': 3}
+
+    """
+    nt = namedtuple(name, args)
+    kw_order = args.split() if isinstance(args, (str, bytes)) else args
+    nargs = len(kw_order)
+
+    # Sanity check that `defaults` conform to typing
+    if len(typing) + len(defaults) > nargs:
+        # there is an overlap
+        noverlap = len(typing) + len(defaults) - nargs
+        for i, t in enumerate(typing[-noverlap:]):
+            assert t(defaults[i])
+
+    # We will be returning a factory which intercepts before
+    # calling our namedtuple constructor
+    def factory(*args, **kwargs):
+        # Set defaults for missing args
+        n_missing = nargs-len(args)
+        if n_missing > 0:
+            unset = OrderedDict(zip(kw_order[-n_missing:],
+                                    defaults[-n_missing:]))
+            unset.update(kwargs)
+            args += tuple(unset.values())
+
+        # Type checking
+        for i, t in enumerate(typing):
+            if not t(args[i]):
+                raise ValueError(
+                    'Argument {} ({}) does not conform to' +
+                    ' typing requirements'.format(i, args[i]))
+        # Construct namedtuple instance and return it
+        return nt(*args)
+    factory.__doc__ = nt.__doc__
+    return factory

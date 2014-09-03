@@ -32,16 +32,16 @@ from operator import add
 
 # External imports
 import sympy
-from pycompilation._helpers import defaultnamedtuple
 from pycompilation.util import (
     import_module_from_file, copy, make_dirs
 )
 from pycompilation.compilation import (
     FortranCompilerRunner, CCompilerRunner,
-    CppCompilerRunner, link_py_so, compile_sources)
+    CppCompilerRunner, link_py_so, compile_sources
+)
 
 # Intrapackage imports
-from .util import render_mako_template_to, download_files
+from .util import render_mako_template_to, download_files, defaultnamedtuple
 
 Loop = namedtuple('Loop', ('counter', 'bounds', 'body'))
 
