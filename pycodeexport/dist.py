@@ -155,8 +155,8 @@ class pce_build_ext(build_ext.build_ext):
             src_objs = compile_sources(
                 sources,
                 cwd=self.build_temp,
-                inc_dirs=map(get_abspath, ext.include_dirs),
-                lib_dirs=map(get_abspath, ext.library_dirs),
+                inc_dirs=list(map(get_abspath, ext.include_dirs)),
+                lib_dirs=list(map(get_abspath, ext.library_dirs)),
                 libs=ext.libraries,
                 logger=ext.logger,
                 only_update=ext.only_update,

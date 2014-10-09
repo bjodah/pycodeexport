@@ -11,6 +11,8 @@ TAGS
 */#*#
 */*.so
 build/
+dist/
+MANIFEST
 .cache/
 examples/.meta*
 examples/*_wrapper.c
