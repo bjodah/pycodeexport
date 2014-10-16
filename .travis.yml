@@ -1,11 +1,18 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
+- '2.7'
+- '3.4'
 install:
-  - "pip install -r requirements.txt"
-  - "python setup.py install"    
-# command to run tests
-script: "py.test ."
+- pip install -r requirements.txt
+- python setup.py install
+script: py.test .
+after_success:
+  - ./scripts/install_miniconda.sh $TRAVIS_PYTHON_VERSION $HOME/miniconda
+  - export PATH=$HOME/miniconda/bin:$PATH
+  - conda install conda-build
+  - ./scripts/travis_after_success.sh $HOME/miniconda
 notifications:
   email: false
+env:
+  global:
+    secure: HOvZl0w5zF0mmfYJeiR9sdVQSMgSvwa5YN93Czb/Jx9CzpQAG9Mk3DM3qNuDjqbK2cDwjsTdJTSkmc6k4GkMJqWqVmUMufwfryBJ2C2eUDD2O+JBBIvF1iVhGtYe7PQTU9zO/7cw9a48G4Pu2oD/ADo3DUmSbiCGkfzzHM7JCiw=

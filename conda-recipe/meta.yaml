@@ -37,9 +37,6 @@ test:
   requires:
     - pycompilation
 
-  imports:
-    - pycodeexport
-
   #commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
