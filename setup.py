@@ -1,10 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 from distutils.core import setup
 
-name_ = 'pycodeexport'
-version_ = '0.0.5'
+pkg_name = 'pycodeexport'
+pkg_version = '0.0.5'
+pkg_is_released = False
+
+if os.environ.get('CONDA_BUILD', None):
+    with open('__conda_version__.txt', 'w') as f:
+        if pkg_is_released:
+            f.write(pkg_version)
+        else:
+            f.write(pkg_version + '.dev')
 
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -22,14 +31,14 @@ classifiers = [
 ]
 
 setup(
-    name=name_,
-    version=version_,
+    name=pkg_name,
+    version=pkg_version,
     author='Björn Dahlgren',
     author_email='bjodah@DELETEMEgmail.com',
     description='Python package for codegeneration.',
-    license = "BSD",
-    url='https://github.com/bjodah/'+name_,
-    download_url='https://github.com/bjodah/'+name_+'/archive/v'+version_+'.tar.gz',
-    packages=[name_],
-    classifiers = classifiers
+    license="BSD",
+    url='https://github.com/bjodah/'+pkg_name,
+    download_url='https://github.com/bjodah/'+pkg_name+'/archive/v'+pkg_version + '.tar.gz',
+    packages=[pkg_name],
+    classifiers=classifiers
 )
