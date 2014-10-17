@@ -2,6 +2,9 @@ package:
   name: pycodeexport
   version: "0.0.5"
 
+source:
+  url: https://github.com/bjodah/pycodeexport/archive/master.zip
+
 requirements:
   build:
     - python
