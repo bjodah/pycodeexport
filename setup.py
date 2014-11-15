@@ -5,7 +5,7 @@ import os
 from distutils.core import setup
 
 pkg_name = 'pycodeexport'
-pkg_version = '0.0.5'
+pkg_version = '0.1.0.dev'
 pkg_is_released = False
 
 if os.environ.get('CONDA_BUILD', None):
@@ -38,7 +38,8 @@ setup(
     description='Python package for codegeneration.',
     license="BSD",
     url='https://github.com/bjodah/'+pkg_name,
-    download_url='https://github.com/bjodah/'+pkg_name+'/archive/v'+pkg_version + '.tar.gz',
+    download_url=('https://github.com/bjodah/' + pkg_name +
+                  '/archive/v' + pkg_version + '.tar.gz'),
     packages=[pkg_name],
     classifiers=classifiers
 )

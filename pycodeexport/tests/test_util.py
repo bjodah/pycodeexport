@@ -1,5 +1,6 @@
 from pycodeexport.util import defaultnamedtuple
 
+
 def test_defaultnamedtuple():
     Point2 = defaultnamedtuple('Point2', 'x y', [10])
     p = Point2(3)
