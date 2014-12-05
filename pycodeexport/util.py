@@ -104,8 +104,8 @@ def download_files(websrc, files, md5sums, cwd=None,
         fmd5 = md5_of_file(fpath).hexdigest()
         if fmd5 != md5sums[f]:
             raise ValueError(("Warning: MD5 sum of {0} differs from "
-                             "that provided in setup.py. i.e. {1} "
-                             "vs. {2}").format(f, fmd5, md5sums[f]))
+                              "that provided in setup.py. i.e. {1} "
+                              "vs. {2}").format(f, fmd5, md5sums[f]))
         dest_paths.append(get_abspath(fpath, cwd=cwd))
     return dest_paths
 

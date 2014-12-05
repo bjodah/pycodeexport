@@ -5,15 +5,11 @@ import os
 from distutils.core import setup
 
 pkg_name = 'pycodeexport'
-pkg_version = '0.1.0.dev'
-pkg_is_released = False
+exec(open(pkg_name + '/release.py').read())
 
-if os.environ.get('CONDA_BUILD', None):
-    with open('__conda_version__.txt', 'w') as f:
-        if pkg_is_released:
-            f.write(pkg_version)
-        else:
-            f.write(pkg_version + '.dev')
+CONDA_BUILD = os.environ.get('CONDA_BUILD', '0') == '1'
+if CONDA_BUILD:
+    open('__conda_version__.txt', 'w').write(__version__)
 
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -30,16 +26,19 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-setup(
+setup_kwargs = dict(
     name=pkg_name,
-    version=pkg_version,
+    version=__version__,
     author='Björn Dahlgren',
     author_email='bjodah@DELETEMEgmail.com',
     description='Python package for codegeneration.',
     license="BSD",
     url='https://github.com/bjodah/'+pkg_name,
     download_url=('https://github.com/bjodah/' + pkg_name +
-                  '/archive/v' + pkg_version + '.tar.gz'),
+                  '/archive/v' + __version__ + '.tar.gz'),
     packages=[pkg_name],
     classifiers=classifiers
 )
+
+if __name__ == '__main__':
+    setup(**setup_kwargs)

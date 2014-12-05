@@ -1,15 +1,11 @@
 package:
   name: pycodeexport
-  version: "0.1.0.dev"
-
+  #  version: "0.0.1"
+  # the version is actually being set by the __conda_version__.txt file
+  # http://conda.pydata.org/docs/build.html#post-build-version
 
 source:
-  #path: "../"
-  url: https://github.com/bjodah/pycodeexport/archive/master.zip
-
-
-
-
+  path: ../
 
 requirements:
   build:
@@ -23,17 +19,6 @@ test:
   requires:
     - pycompilation
 
-  #commands:
-    # You can put test commands to be run here.  Use this to test that the
-    # entry points work.
-
-
-  # You can also put a file called run_test.py in the recipe that will be run
-  # at test time.
-
-  # requires:
-    # Put any additional test requirements here.  For example
-    # - nose
 
 about:
   home: https://github.com/bjodah/pycodeexport
