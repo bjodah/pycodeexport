@@ -68,7 +68,7 @@ def _dummify_expr(expr, basename, symbs):
 
 
 def syntaxify_getitem(syntax, scode, basename, token, offset=None,
-                      dim=0, match_regex='(\d)'):
+                      dim=0, match_regex='(\d+)'):
     """
 
     Arguments:
@@ -84,7 +84,7 @@ def syntaxify_getitem(syntax, scode, basename, token, offset=None,
 
     >>> syntaxify_getitem('F', 'y7 = x7+i;', 'y', 'yout',
             offset=-3, dim=-1)
-    'yout(7-3,:) = x_7+i;'
+    'yout(7-3,:) = x7+i;'
     """
     if syntax == 'C':
         assert dim == 0  # C does not support broadcasting
@@ -234,7 +234,6 @@ class Generic_Code(object):
         for basename, code_tok, offset, dim in arrayify_groups:
             scode = syntaxify_getitem(
                 self.syntax, scode, basename, code_tok, offset, dim)
-
         return scode
 
     def get_cse_code(self, exprs, basename=None,
