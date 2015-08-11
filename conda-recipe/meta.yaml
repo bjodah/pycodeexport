@@ -1,11 +1,11 @@
 package:
   name: pycodeexport
-  #  version: "0.0.1"
+  version: "0.1.1"
   # the version is actually being set by the __conda_version__.txt file
   # http://conda.pydata.org/docs/build.html#post-build-version
 
 source:
-  path: ../
+  path: https://github.com/bjodah/pycodeexport/archive/v0.1.1.tar.gz
 
 requirements:
   build:
