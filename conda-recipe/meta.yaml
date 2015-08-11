@@ -5,7 +5,8 @@ package:
   # http://conda.pydata.org/docs/build.html#post-build-version
 
 source:
-  path: https://github.com/bjodah/pycodeexport/archive/v0.1.1.tar.gz
+  path: ../
+  #path: https://github.com/bjodah/pycodeexport/archive/v0.1.1.tar.gz
 
 requirements:
   build:
