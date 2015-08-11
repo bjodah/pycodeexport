@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LIBRARY_PATH="$PREFIX/lib"
+export INCLUDE_PATH="$PREFIX/include"
 $PYTHON setup.py install
 
 # Add more build steps here, if they are necessary.
