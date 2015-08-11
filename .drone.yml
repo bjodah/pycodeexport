@@ -1,0 +1,6 @@
+image: bjodah/dockerfile-bjodah-scicomp
+git:
+    path: github.com/bjodah/pycodeexport
+script:
+  - python setup.py install
+  - py.test
