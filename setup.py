@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from distutils.core import setup
+from setuptools import setup
 
 pkg_name = 'pycodeexport'
 exec(open(pkg_name + '/release.py').read())
@@ -37,6 +37,8 @@ setup_kwargs = dict(
     download_url=('https://github.com/bjodah/' + pkg_name +
                   '/archive/v' + __version__ + '.tar.gz'),
     packages=[pkg_name],
+    install_requires=['sympy>=0.7.5', 'future>=0.12.3', 'cython>=0.20.2',
+                      'mako>=1.0.0', 'pycompilation>=0.4.0'],
     classifiers=classifiers
 )
 
