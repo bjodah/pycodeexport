@@ -99,7 +99,7 @@ def main(logger=None, clean=False):
 
     N = 16*1024*1024  # 3*128 MB of RAM needed
 
-    for py_op, dtype_ in product([add, mul, sub, pow],
+    for py_op, dtype_ in product([add, mul, sub, truediv, pow],
                                  [np.float64, np.float32]):
         a = np.array(np.random.random(N), dtype=dtype_)
         b = np.array(np.random.random(N), dtype=dtype_)

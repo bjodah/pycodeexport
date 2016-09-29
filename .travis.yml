@@ -1,26 +1,15 @@
 language: c
-# env:
-#   matrix:
-#     - PYTHON_VERSION=2.7 CONDA_PY=27
-#     - PYTHON_VERSION=3.4 CONDA_PY=34
-#   global:
-#     - CONDA_VERSION="3.10.1"
 install:
-  - export CONDA_VERSION="3.10.1"
-  - export PYTHON_VERSION=3.4
-  - export CONDA_PY=34
-  - export MINICONDA_PATH=$HOME/miniconda
+  - export CONDA_VERSION="4.1.11"
+  - export PYTHON_VERSION=3.5
+  - export CONDA_PY=35
+  - export MINICONDA_PATH=/tmp/miniconda
   - echo $PYTHON_VERSION $MINICONDA_PATH $CONDA_VERSION
   - sudo apt-get install gfortran g++ gcc
   - source ./scripts/install_miniconda.sh $PYTHON_VERSION $MINICONDA_PATH $CONDA_VERSION
-  - export PATH=$HOME/miniconda/bin:$PATH
-  - conda install conda-build
+  - export PATH=$MINICONDA_PATH/bin:$PATH
 script:
+  - conda config --add channels bjodah
   - conda build conda-recipe
-after_success:
-  - ./scripts/travis_after_success.sh $HOME/miniconda
 notifications:
   email: false
-env:
-  global:
-    secure: HOvZl0w5zF0mmfYJeiR9sdVQSMgSvwa5YN93Czb/Jx9CzpQAG9Mk3DM3qNuDjqbK2cDwjsTdJTSkmc6k4GkMJqWqVmUMufwfryBJ2C2eUDD2O+JBBIvF1iVhGtYe7PQTU9zO/7cw9a48G4Pu2oD/ADo3DUmSbiCGkfzzHM7JCiw=

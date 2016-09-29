@@ -1,31 +1,37 @@
+{% set name = "pycodeexport" %}
+{% set version = "0.1.1.git" %}
+
 package:
-  name: pycodeexport
-  version: "0.1.1"
-  # the version is actually being set by the __conda_version__.txt file
-  # http://conda.pydata.org/docs/build.html#post-build-version
+  name: {{ name|lower }}
+  version: {{ version }}
 
 source:
-  path: ../
-  #path: https://github.com/bjodah/pycodeexport/archive/v0.1.1.tar.gz
+  git_url: ../
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
   build:
     - python
-
+    - setuptools
   run:
     - python
-
+    - sympy
+    - mako
+    - pycompilation
+    - cython
+    
 test:
-  # Python imports
   requires:
     - pycompilation
+  imports:
+    - pycodeexport
+    - pycodeexport.dist
 
 
 about:
   home: https://github.com/bjodah/pycodeexport
-  license:  BSD License
+  license: BSD 2-Clause
   summary: 'Python package for codegeneration.'
-
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml

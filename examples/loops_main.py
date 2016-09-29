@@ -10,31 +10,6 @@ import sympy
 from pycodeexport.codeexport import C_Code, Loop
 
 
-def get_statements(eq, taken=None):
-    """
-    Returns a list of Eq objects were lhs is variable to make
-    assignment to and rhs is expr to be evaluated.
-
-    Transforms Sum() and Product() objects into Loop instances
-    """
-
-    def argify(a):
-        if arg.is_Symbol:
-            return a
-        else:
-            if isinstance(a, sympy.Sum):
-                # s = Dummy()
-                expr, loopv = a.args[0], a.args[1]
-                sub_stmnts = get_statements(expr)
-                return Loop(sub_stmnts, loopv)
-            elif isinstance(a, sympy.Product):
-                raise NotImplementedError
-            else:
-                raise NotImplementedError
-
-    return map(argify, eq)
-
-
 def get_idxs(exprs):
     """
     Finds sympy.tensor.indexed.Idx instances and returns them.

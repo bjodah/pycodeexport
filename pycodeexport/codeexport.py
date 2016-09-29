@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
 
 """
@@ -23,12 +24,10 @@ the problem at hand (personal opinion).
 import tempfile
 import shutil
 import re
-import sys
 import os
 
-from collections import OrderedDict, namedtuple
-from functools import reduce, partial
-from operator import add
+from collections import namedtuple
+from functools import partial
 
 # External imports
 import sympy
@@ -71,20 +70,27 @@ def syntaxify_getitem(syntax, scode, basename, token, offset=None,
                       dim=0, match_regex='(\d+)'):
     """
 
-    Arguments:
-    -`syntax`: Either 'C' or 'F' for C or Fortran respectively
-    -`scode`: string of code to transformed
-    -`basename`: name of (array) variable in scode
-    -`token`: name of (array) variable in code
+    Parameters
+    ----------
+    syntax : str
+        Either 'C' or 'F' for C or Fortran respectively
+    scode: str
+        Code string to transformed.
+    basename : str
+        Name of (array) variable in scode.
+    token: str
+        Name of (array) variable in code.
 
-    Examples:
+    Examples
+    --------
     >>> syntaxify_getitem('C', 'y_i = x_i+i;', 'y', 'yout',
-            offset='CONST', match_regex=r'_(\w)')
+    ...     offset='CONST', match_regex=r'_(\w)')
     'yout[i+CONST] = x_i+i;'
 
     >>> syntaxify_getitem('F', 'y7 = x7+i;', 'y', 'yout',
-            offset=-3, dim=-1)
+    ...     offset=-3, dim=-1)
     'yout(7-3,:) = x7+i;'
+
     """
     if syntax == 'C':
         assert dim == 0  # C does not support broadcasting
@@ -127,16 +133,22 @@ class Interceptor(object):
 
 
 class Generic_Code(object):
-    """
-    Attributes to optionally override:
-    -`syntax`: any of the supported syntaxes ('C' or 'F')
-    -`tempdir_basename`: basename of tempdirs created in e.g. /tmp/
-    -`basedir` the path to the directory which relative (source)
-    paths are given to
+    """ Base class representing code generating object.
 
+    Attributes
+    ----------
+    syntax : str
+        Any of the supported syntaxes ('C' or 'F').
+    tempdir_basename:  basename of tempdirs created in e.g. /tmp/
+    basedir : str
+        The path to the directory which relative (source).
+
+    Notes
+    -----
     Regarding syntax:
-      C99 is assumed for 'C'
-      Fortran 2008 (free form) is assumed for 'F'
+        - C99 is assumed for 'C'
+        - Fortran 2008 (free form) is assumed for 'F'
+
     """
 
     CompilerRunner = None  # Set to compilation.CompilerRunner subclass
@@ -222,10 +234,6 @@ class Generic_Code(object):
 
     def as_arrayified_code(self, expr, dummy_groups=(),
                            arrayify_groups=(), **kwargs):
-        """
-        >>> self.as_arrayified_code(f(x)**2+y,
-                (DummyGroup('funcdummies', [f(x)]),))
-        """
         for basename, symbols in dummy_groups:
             expr = _dummify_expr(expr, basename, symbols)
 
@@ -238,12 +246,15 @@ class Generic_Code(object):
 
     def get_cse_code(self, exprs, basename=None,
                      dummy_groups=(), arrayify_groups=()):
-        """
-        Get arrayified code for common subexpression.
-        Arguments:
-        -`exprs`: list of sympy expressions
-        -`basename`: stem of variable names (default: cse)
-        -`dummy_groups`: tuple of
+        """ Get arrayified code for common subexpression.
+
+        Parameters
+        ----------
+        exprs : list of sympy expressions
+        basename : str
+            Stem of variable names (default: cse).
+        dummy_groups : tuples
+
         """
         if basename is None:
             basename = 'cse'
@@ -287,10 +298,9 @@ class Generic_Code(object):
 
     @property
     def mod(self):
-        """
-        Cached compiled binary of the Generic_Code class,
-        if you want to clear the cache do:
-        >>> my_code_class_instance.clear_mod_cache()
+        """ Cached compiled binary of the Generic_Code class.
+
+        To clear cache invoke :meth:`clear_mod_cache`.
         """
         if self._mod is None:
             self._mod = self.compile_and_import_binary()
@@ -304,12 +314,12 @@ class Generic_Code(object):
         Returnes a module instance of the extension module.
         Consider using the `mod` property instead.
 
-        Use:
-        >>> mod = codeinstnc.compile_and_import_binary()
-        >>> x = mod.cb('foo')
+        Do ::
+        >>> mod = codeinstnc.compile_and_import_binary()  # doctest: +SKIP
+        >>> x = mod.cb('foo') # doctest: +SKIP
 
-        Don't:
-        >>> cb = codeinstnc.compile_and_import_binary().cb
+        Don't ::
+        >>> cb = codeinstnc.compile_and_import_binary().cb  # doctest: +SKIP
 
         Since that circumvents measurments avoiding singleton
         behaviour when multiple different versions of the same
@@ -366,11 +376,11 @@ class Cython_Code(Generic_Code):
     Could be rewritten to use pyx2obj
     """
 
-    from Cython.Distutils import build_ext
-    from distutils.core import setup
-    from distutils.extension import Extension
-
     def _compile(self):
+        from Cython.Distutils import build_ext
+        from setuptools import setup
+        from setuptools import Extension
+
         sources = [os.path.join(
             self._tempdir, os.path.basename(x).replace(
                 '_template', '')) for x in self.source_files]
