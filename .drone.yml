@@ -1,5 +1,19 @@
 build:
-  image: bjodah/bjodahimg16dev:latest
+  image: bjodah/bjodahimg16base:v1.1
   commands:
-    - python3 -m pip install --user .
-    - python3 -m pytest
+    - python2 -m pip install --upgrade wheel setuptools
+    - python3 -m pip install --upgrade wheel setuptools
+    - ./scripts/ci.sh pycodeexport
+    - PATH=$HOME/.local/bin:$PATH ./scripts/generate_docs.sh
+    - ./scripts/prepare_deploy.sh
+
+deploy:
+
+  rsync:
+    host: hera.physchem.kth.se
+    user: pycodeexport
+    port: 22
+    source: deploy/
+    target: ~
+    recursive: true
+    delete: false

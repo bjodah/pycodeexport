@@ -1,5 +1,0 @@
-sympy>=0.7.5
-future>=0.12.3
-cython>=0.20.2
-mako>=1.0.0
-pycompilation>=0.4.0

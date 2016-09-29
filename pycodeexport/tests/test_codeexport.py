@@ -1,8 +1,9 @@
 from pycodeexport.codeexport import syntaxify_getitem
 
+
 def test_syntaxify_getitem():
     s1 = syntaxify_getitem('C', 'y_i = x_i+i;', 'y', 'yout',
-                          offset='CONST', match_regex=r'_(\w)')
+                           offset='CONST', match_regex=r'_(\w)')
     assert s1 == 'yout[i+CONST] = x_i+i;'
 
     s2 = syntaxify_getitem('F', 'y7 = x7+i;', 'y', 'yout',

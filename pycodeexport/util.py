@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    print_function, division, absolute_import, unicode_literals
-)
+from __future__ import print_function, division, absolute_import
 
 import os
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple, OrderedDict, Mapping
 
 from pycompilation.util import (
     md5_of_file, missing_or_other_newer, get_abspath, make_dirs
 )
+
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # Python 2
 
 
 def render_mako_template_to(
@@ -110,63 +113,38 @@ def download_files(websrc, files, md5sums, cwd=None,
     return dest_paths
 
 
-def defaultnamedtuple(name, args, defaults=(), typing=()):
-    """
-    defaultnamedtuple returns a new subclass of Tuple with named fields
-    and a constructor with implicit default values.
+def defaultnamedtuple(typename, field_names, defaults=()):
+    """ Generates a new subclass of tuple with default values.
 
     Parameters
-    ==========
-    name: string
-         the name of the class
-    args: tuple
-        a tuple or a splitable string
-    defaults: iterable
-        default values for args, counting [-len(defaults):]
-    typing`: iterable of callbacks
-        optional requirements for type, counting [:len(typing)]
-        should be an iterable of callbacks returning True for
-        conformance.
+    ----------
+    typename : string
+        The name of the class.
+    field_names : str or iterable
+        An iterable of splitable string.
+    defaults : iterable
+        Default values for ``field_names``, counting ``[-len(defaults):]``.
 
     Examples
-    ========
-    >>> Body = namedtuple('Body', 'x y z density', (1.0,))
+    --------
+    >>> Body = defaultnamedtuple('Body', 'x y z density', (1.0,))
     >>> Body.__doc__
-    SOMETHING
+    'Body(x, y, z, density)'
     >>> b = Body(10, z=3, y=5)
     >>> b._asdict()
-    {'density': 1.0, 'x': 10, 'y': 5, 'z': 3}
+    OrderedDict([('x', 10), ('y', 5), ('z', 3), ('density', 1.0)])
+
+    Returns
+    -------
+    A new tuple subclass named ``typename``
 
     """
-    nt = namedtuple(name, args)
-    kw_order = args.split() if isinstance(args, (str, bytes)) else args
-    nargs = len(kw_order)
-
-    # Sanity check that `defaults` conform to typing
-    if len(typing) + len(defaults) > nargs:
-        # there is an overlap
-        noverlap = len(typing) + len(defaults) - nargs
-        for i, t in enumerate(typing[-noverlap:]):
-            assert t(defaults[i])
-
-    # We will be returning a factory which intercepts before
-    # calling our namedtuple constructor
-    def factory(*args, **kwargs):
-        # Set defaults for missing args
-        n_missing = nargs-len(args)
-        if n_missing > 0:
-            unset = OrderedDict(zip(kw_order[-n_missing:],
-                                    defaults[-n_missing:]))
-            unset.update(kwargs)
-            args += tuple(unset.values())
-
-        # Type checking
-        for i, t in enumerate(typing):
-            if not t(args[i]):
-                raise ValueError(
-                    'Argument {} ({}) does not conform to' +
-                    ' typing requirements'.format(i, args[i]))
-        # Construct namedtuple instance and return it
-        return nt(*args)
-    factory.__doc__ = nt.__doc__
-    return factory
+    Tuple = namedtuple(typename, field_names)
+    Tuple.__new__.__defaults__ = (None,) * len(Tuple._fields)
+    if isinstance(defaults, Mapping):
+        Tuple.__new__.__defaults__ = tuple(Tuple(**defaults))
+    else:
+        nmissing = len(Tuple._fields) - len(defaults)
+        defaults = (None,)*nmissing + tuple(defaults)
+        Tuple.__new__.__defaults__ = tuple(Tuple(*defaults))
+    return Tuple
