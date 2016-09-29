@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  path: ../dist/{{ name }}-{{ version }}.tar.gz
+  git_url: ../
 
 build:
   number: 0

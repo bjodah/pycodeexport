@@ -17,3 +17,4 @@ MANIFEST
 examples/.meta*
 examples/*_wrapper.c
 examples/*build*
+*.egg-info/

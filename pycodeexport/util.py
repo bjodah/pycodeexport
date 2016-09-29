@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 
 import os
 
-from collections import namedtuple, OrderedDict, Mapping
+from collections import namedtuple, Mapping
 
 from pycompilation.util import (
     md5_of_file, missing_or_other_newer, get_abspath, make_dirs

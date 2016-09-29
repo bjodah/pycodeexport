@@ -8,9 +8,10 @@ pycodeexport
    :target: http://hera.physchem.kth.se:9090/bjodah/pycodeexport
    :alt: Build status on self-hosted Drone instance
 
-pycodeexport bundles python convenience classes and functions for code-generation.
-Developed to ease on-the-fly compilation (meta-programming) of math related problems 
-using the SymPy package. Note that this package has an alpha development status.
+``pycodeexport`` is a Python package which bundles convenience classes and functions
+for code-generation. The package has been developed to aid on-the-fly compilation
+(meta-programming) of math related problems expressed as `SymPy <https://www.sympy.org>`_
+expressions. Note that this package has an alpha development status.
 
 Installation
 ------------
