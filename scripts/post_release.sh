@@ -14,8 +14,11 @@ if [[ ! -f "$SDIST_FILE" ]]; then
     exit 1
 fi
 SHA256=$(openssl sha256 "$SDIST_FILE" | cut -f2 -d' ')
+if [[ -d "dist/conda-recipe-$VERSION" ]]; then
+    rm -r "dist/conda-recipe-$VERSION"
+fi
 cp -r conda-recipe/ dist/conda-recipe-$VERSION
-sed -i -E -e "s/\{\% set version(.+)/\{\% set version = \"$VERSION\" \%\}/" -e "s/path:(.+)/fn: $PKG-$VERSION.tar.gz\n  url: https:\/\/pypi.io\/packages\/source\/${PKG:0:1}\/${PKG}\/${PKG}-$VERSION.tar.gz\n  sha256: $SHA256/" dist/conda-recipe-$VERSION/meta.yaml
+sed -i -E -e "s/\{\% set version(.+)/\{\% set version = \"$VERSION\" \%\}/" -e "s/git_url:(.+)/fn: $PKG-$VERSION.tar.gz\n  url: https:\/\/pypi.io\/packages\/source\/${PKG:0:1}\/${PKG}\/${PKG}-$VERSION.tar.gz\n  sha256: $SHA256/" dist/conda-recipe-$VERSION/meta.yaml
                                                                                                   
 env ${PKG_UPPER}_RELEASE_VERSION=v$VERSION python setup.py upload_sphinx
 

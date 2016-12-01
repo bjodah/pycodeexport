@@ -336,8 +336,9 @@ class Generic_Code(object):
     def clean(self):
         """ Delete temp dir if not save_temp set at __init__ """
         if not self._save_temp:
-            map(os.unlink, self._written_files)
-            if self._remove_tempdir_on_clean:
+            if hasattr(self, '_written_files'):
+                map(os.unlink, self._written_files)
+            if getattr(self, '_remove_tempdir_on_clean', False):
                 shutil.rmtree(self._tempdir)
 
     def __del__(self):
