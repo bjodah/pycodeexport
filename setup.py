@@ -3,21 +3,17 @@
 
 import io
 import os
+import re
 import shutil
+import subprocess
+import sys
+import warnings
+
 from setuptools import setup
 
 pkg_name = 'pycodeexport'
-
-RELEASE_VERSION = os.environ.get('%s_RELEASE_VERSION' % pkg_name.upper(), '')
-
-# http://conda.pydata.org/docs/build.html#environment-variables-set-during-the-build-process
-if os.environ.get('CONDA_BUILD', '0') == '1':
-    try:
-        RELEASE_VERSION = 'v' + io.open(
-            '__conda_version__.txt', 'rt', encoding='utf-8'
-        ).readline().rstrip()
-    except IOError:
-        pass
+url = 'https://github.com/bjodah/' + pkg_name
+license = 'BSD'
 
 
 def _path_under_setup(*args):
@@ -25,13 +21,34 @@ def _path_under_setup(*args):
 
 release_py_path = _path_under_setup(pkg_name, '_release.py')
 
-if (len(RELEASE_VERSION) > 1 and RELEASE_VERSION[0] == 'v'):
+_version_env_var = '%s_RELEASE_VERSION' % pkg_name.upper()
+RELEASE_VERSION = os.environ.get(_version_env_var, '')
+
+# http://conda.pydata.org/docs/build.html#environment-variables-set-during-the-build-process
+CONDA_BUILD = os.environ.get('CONDA_BUILD', '0') == '1'
+if CONDA_BUILD:
+    try:
+        RELEASE_VERSION = 'v' + open('__conda_version__.txt', 'rt').readline().rstrip()
+    except IOError:
+        pass
+
+if len(RELEASE_VERSION) > 1 and RELEASE_VERSION[0] == 'v':
     TAGGED_RELEASE = True
     __version__ = RELEASE_VERSION[1:]
 else:
     TAGGED_RELEASE = False
     # read __version__ attribute from _release.py:
     exec(io.open(release_py_path, encoding='utf-8').read())
+    if __version__.endswith('git'):
+        try:
+            _git_version = subprocess.check_output(
+                ['git', 'describe', '--dirty']).rstrip().decode('utf-8').replace('-dirty', '.dirty')
+        except subprocess.CalledProcessError:
+            warnings.warn("A git-archive is being installed - version information incomplete.")
+        else:
+            if 'develop' not in sys.argv:
+                warnings.warn("Using git to derive version: dev-branches may compete.")
+                __version__ = re.sub('v([0-9.]+)-(\d+)-(\w+)', r'\1.post\2+\3', _git_version)  # .dev < '' < .post
 
 tests = [
     '%s.tests' % pkg_name,
@@ -53,30 +70,33 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-with io.open(_path_under_setup(pkg_name, '__init__.py'), 'rt',
-             encoding='utf-8') as f:
+with io.open(_path_under_setup(pkg_name, '__init__.py'), 'rt', encoding='utf-8') as f:
     short_description = f.read().split('"""')[1].split('\n')[1]
-assert 10 < len(short_description) < 255
-long_descr = io.open(_path_under_setup('README.rst'), encoding='utf-8').read()
-assert len(long_descr) > 100
-
+if not 10 < len(short_description) < 255:
+    warnings.warn("Short description from __init__.py proably not read correctly.")
+long_description = io.open(_path_under_setup('README.rst'),
+                           encoding='utf-8').read()
+if not len(long_description) > 100:
+    warnings.warn("Long description from README.rst probably not read correctly.")
+_author, _author_email = io.open(_path_under_setup('AUTHORS'), 'rt', encoding='utf-8').readline().split('<')
 
 setup_kwargs = dict(
     name=pkg_name,
-    version=__version__,
-    author='Björn Dahlgren',
-    author_email='bjodah@DELETEMEgmail.com',
+    version=__version__,  # from release_py_path
     description=short_description,
-    long_description=long_descr,
-    license="BSD",
+    long_description=long_description,
+    author=_author.strip(),
+    author_email=_author_email.split('>')[0].strip(),
+    url=url,
+    license=license,
     packages=[pkg_name] + tests,
+    classifiers=classifiers,
     install_requires=['mako>=1.0.0', 'pycompilation>=0.4.0', 'sympy>=0.7.5',
                       'cython>=0.20.2'],
     extras_require={
         'all': ['cython', 'pytest', 'numpy', 'Sphinx', 'sphinx_rtd_theme',
                 'numpydoc', 'pytest-cov', 'pytest-flakes', 'pytest-pep8']
     },
-    classifiers=classifiers,
 )
 
 if __name__ == '__main__':
