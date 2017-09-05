@@ -32,8 +32,8 @@ class ExampleCode(C_Code):
                     'loops_wrapper.pyx']
     compile_kwargs = {
         'std': 'c99',
-        'libs': ['m'],
-        'inc_dirs': [np.get_include()]
+        'libraries': ['m'],
+        'include_dirs': [np.get_include()]
     }
     build_files = ['loops_wrapper.pyx']
     obj_files = [

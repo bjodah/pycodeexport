@@ -4,6 +4,8 @@
    This is a Mako (docs.makotemplates.org/) templated C99-source code
 </%doc>
 
+#include <math.h>
+
 ##// Essentially "import pycodeexport.codeexport as ce"
 <%namespace name="ce" module="pycodeexport.codeexport"/>
 

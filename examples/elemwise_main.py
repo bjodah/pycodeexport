@@ -23,7 +23,7 @@ def run_compilation(tempd, logger=None):
 
     compile_sources(
         ['elemwise.c', 'elemwise_wrapper.pyx'], flags=['-msse3'], cwd=tempd,
-        options=['pic', 'warn', 'fast', 'openmp'], inc_dirs=[np.get_include()],
+        options=['pic', 'warn', 'fast', 'openmp'], include_dirs=[np.get_include()],
         std='c99', run_linker=False, logger=logger)
 
     so_file = link_py_so(['elemwise.o', 'elemwise_wrapper.o'],
