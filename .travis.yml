@@ -1,0 +1,15 @@
+language: c
+install:
+  - export CONDA_VERSION="4.1.11"
+  - export PYTHON_VERSION=3.5
+  - export CONDA_PY=35
+  - export MINICONDA_PATH=/tmp/miniconda
+  - echo $PYTHON_VERSION $MINICONDA_PATH $CONDA_VERSION
+  - sudo apt-get install gfortran g++ gcc
+  - source ./scripts/install_miniconda.sh $PYTHON_VERSION $MINICONDA_PATH $CONDA_VERSION
+  - export PATH=$MINICONDA_PATH/bin:$PATH
+script:
+  - conda config --add channels bjodah
+  - conda build conda-recipe
+notifications:
+  email: false

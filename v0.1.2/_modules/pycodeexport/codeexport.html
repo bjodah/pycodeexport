@@ -1,0 +1,757 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pycodeexport.codeexport &mdash; pycodeexport 0.1.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="pycodeexport 0.1.2 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pycodeexport
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pycodeexport.html">pycodeexport package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pycodeexport</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pycodeexport.codeexport</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pycodeexport.codeexport</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">When a Sympy expressions needs to be evaluated it is,</span>
+<span class="sd">for performance reasons, preferable that the</span>
+<span class="sd">numerics are performed in a compiled language</span>
+<span class="sd">the codeexport module provide classes enabling</span>
+<span class="sd">templates to be used as blueprints for generating, compiling</span>
+<span class="sd">and importing a binary which performs the computations.</span>
+
+
+<span class="sd">Both C, C++ and Fortran is considered, but since</span>
+<span class="sd">the codegeneration uses templates, one can easily extend</span>
+<span class="sd">the functionality to other languages.</span>
+
+<span class="sd">The approach taken here differs from sympy.utilities.codegen.codegen</span>
+<span class="sd">through the use of Mako templates and classes which controlls</span>
+<span class="sd">the how they are rendered. Which method is best depends on</span>
+<span class="sd">the problem at hand (personal opinion).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># stdlib imports</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+
+<span class="c1"># External imports</span>
+<span class="kn">import</span> <span class="nn">sympy</span>
+<span class="kn">from</span> <span class="nn">pycompilation.util</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">import_module_from_file</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">make_dirs</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pycompilation.compilation</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">FortranCompilerRunner</span><span class="p">,</span> <span class="n">CCompilerRunner</span><span class="p">,</span>
+    <span class="n">CppCompilerRunner</span><span class="p">,</span> <span class="n">link_py_so</span><span class="p">,</span> <span class="n">compile_sources</span>
+<span class="p">)</span>
+
+<span class="c1"># Intrapackage imports</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="k">import</span> <span class="n">render_mako_template_to</span><span class="p">,</span> <span class="n">download_files</span><span class="p">,</span> <span class="n">defaultnamedtuple</span>
+
+<span class="n">Loop</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Loop&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;counter&#39;</span><span class="p">,</span> <span class="s1">&#39;bounds&#39;</span><span class="p">,</span> <span class="s1">&#39;body&#39;</span><span class="p">))</span>
+
+<span class="c1"># DummyGroup instances are used in transformation from sympy expression</span>
+<span class="c1"># into code. It is used to protect symbols from being operated upon.</span>
+<span class="n">DummyGroup</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;DummyGroup&#39;</span><span class="p">,</span> <span class="s1">&#39;basename symbols&#39;</span><span class="p">)</span>
+
+<span class="c1"># ArrayifyGroup instances defines what expressions should be</span>
+<span class="c1"># arrayified and what offset should be used</span>
+<span class="c1"># arg `dim` is for broadcasting (Fortran)</span>
+<span class="n">ArrayifyGroup</span> <span class="o">=</span> <span class="n">defaultnamedtuple</span><span class="p">(</span>
+    <span class="s1">&#39;ArrayifyGroup&#39;</span><span class="p">,</span> <span class="s1">&#39;basename code_tok offset dim&#39;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_dummify_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">symbs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Useful to robustify prior to e.g. regexp substitution of</span>
+<span class="sd">    code strings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dummies</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">symbs</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">symbs</span><span class="p">):</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">s</span><span class="p">:</span> <span class="n">dummies</span><span class="p">[</span><span class="n">i</span><span class="p">]})</span>
+    <span class="k">return</span> <span class="n">expr</span>
+
+
+<div class="viewcode-block" id="syntaxify_getitem"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.syntaxify_getitem">[docs]</a><span class="k">def</span> <span class="nf">syntaxify_getitem</span><span class="p">(</span><span class="n">syntax</span><span class="p">,</span> <span class="n">scode</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">match_regex</span><span class="o">=</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    syntax : str</span>
+<span class="sd">        Either &#39;C&#39; or &#39;F&#39; for C or Fortran respectively</span>
+<span class="sd">    scode: str</span>
+<span class="sd">        Code string to transformed.</span>
+<span class="sd">    basename : str</span>
+<span class="sd">        Name of (array) variable in scode.</span>
+<span class="sd">    token: str</span>
+<span class="sd">        Name of (array) variable in code.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; syntaxify_getitem(&#39;C&#39;, &#39;y_i = x_i+i;&#39;, &#39;y&#39;, &#39;yout&#39;,</span>
+<span class="sd">    ...     offset=&#39;CONST&#39;, match_regex=r&#39;_(\w)&#39;)</span>
+<span class="sd">    &#39;yout[i+CONST] = x_i+i;&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; syntaxify_getitem(&#39;F&#39;, &#39;y7 = x7+i;&#39;, &#39;y&#39;, &#39;yout&#39;,</span>
+<span class="sd">    ...     offset=-3, dim=-1)</span>
+<span class="sd">    &#39;yout(7-3,:) = x7+i;&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">syntax</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># C does not support broadcasting</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">offset_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0:+d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">offset_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">offset_str</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+
+    <span class="n">c_tgt</span> <span class="o">=</span> <span class="n">token</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;[\1&#39;</span><span class="o">+</span><span class="n">offset_str</span><span class="o">+</span><span class="s1">&#39;]&#39;</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">f_tgt</span> <span class="o">=</span> <span class="n">token</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="s1">&#39;:,&#39;</span><span class="o">*</span><span class="n">dim</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;\1&#39;</span><span class="o">+</span><span class="n">offset_str</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>  <span class="c1"># slow!</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f_tgt</span> <span class="o">=</span> <span class="n">token</span><span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;\1&#39;</span><span class="o">+</span><span class="n">offset_str</span><span class="o">+</span><span class="s1">&#39;,:&#39;</span><span class="o">*-</span><span class="n">dim</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>  <span class="c1"># fast!</span>
+    <span class="n">tgt</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">c_tgt</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="n">f_tgt</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="n">match_regex</span><span class="p">,</span> <span class="n">tgt</span><span class="p">,</span> <span class="n">scode</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Interceptor"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Interceptor">[docs]</a><span class="k">class</span> <span class="nc">Interceptor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a wrapper for dynamically loaded extension modules</span>
+<span class="sd">    which share the same name (they end up overwriting the same</span>
+<span class="sd">    python object).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_binary_path</span> <span class="o">=</span> <span class="n">binary_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_binary_mod</span> <span class="o">=</span> <span class="n">import_module_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;__file__&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary_mod</span><span class="o">.</span><span class="vm">__file__</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary_mod</span><span class="o">.</span><span class="vm">__file__</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary_path</span><span class="p">:</span>
+            <span class="c1"># Avoid singleton behaviour. (Python changes binary path</span>
+            <span class="c1"># inplace without changing id of Python object)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_binary_mod</span> <span class="o">=</span> <span class="n">import_module_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary_mod</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Generic_Code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code">[docs]</a><span class="k">class</span> <span class="nc">Generic_Code</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base class representing code generating object.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    syntax : str</span>
+<span class="sd">        Any of the supported syntaxes (&#39;C&#39; or &#39;F&#39;).</span>
+<span class="sd">    tempdir_basename:  basename of tempdirs created in e.g. /tmp/</span>
+<span class="sd">    basedir : str</span>
+<span class="sd">        The path to the directory which relative (source).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Regarding syntax:</span>
+<span class="sd">        - C99 is assumed for &#39;C&#39;</span>
+<span class="sd">        - Fortran 2008 (free form) is assumed for &#39;F&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CompilerRunner</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Set to compilation.CompilerRunner subclass</span>
+
+    <span class="n">syntax</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">fort</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># a form of fortran code? (decisive for linking)</span>
+    <span class="n">tempdir_basename</span> <span class="o">=</span> <span class="s1">&#39;generic_code&#39;</span>
+    <span class="n">basedir</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_cached_files</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">build_files</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">source_files</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">templates</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">obj_files</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extension_name</span> <span class="o">=</span> <span class="s1">&#39;generic_extension&#39;</span>
+    <span class="n">so_file</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extension_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">compile_kwargs</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># kwargs passed to CompilerRunner</span>
+
+    <span class="n">list_attributes</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;_written_files&#39;</span><span class="p">,</span>  <span class="c1"># Track what files are written</span>
+        <span class="s1">&#39;build_files&#39;</span><span class="p">,</span>   <span class="c1"># Files to be copied prior to compilation</span>
+        <span class="s1">&#39;source_files&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;templates&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;obj_files&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_cached_files&#39;</span><span class="p">,</span>  <span class="c1"># Files to be removed between compilations</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tempdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_temp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Arguments:</span>
+<span class="sd">        - `tempdir`: Optional path to dir to write code files</span>
+<span class="sd">        - `save_temp`: Save generated code files when garbage</span>
+<span class="sd">            collected? (Default: False)</span>
+<span class="sd">        - `logger`: optional logging.Logger instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syntax</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wcode</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">ccode</span><span class="p">,</span> <span class="n">contract</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">syntax</span> <span class="o">==</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wcode</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+                <span class="n">sympy</span><span class="o">.</span><span class="n">fcode</span><span class="p">,</span> <span class="n">source_format</span><span class="o">=</span><span class="s1">&#39;free&#39;</span><span class="p">,</span> <span class="n">contract</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="ow">or</span> <span class="s2">&quot;.&quot;</span>
+        <span class="c1"># setting basedir to:</span>
+        <span class="c1"># os.path.dirname(sys.modules[self.__class__.__module__].__file__)</span>
+        <span class="c1"># gives problems when using e.g. pudb.</span>
+
+        <span class="k">if</span> <span class="n">tempdir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span> <span class="o">=</span> <span class="n">tempdir</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_tempdir_on_clean</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir_basename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_tempdir_on_clean</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_temp</span> <span class="o">=</span> <span class="n">save_temp</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_tempdir_on_clean</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Initialize lists</span>
+        <span class="k">for</span> <span class="n">lstattr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_attributes</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lstattr</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">lstattr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">compile_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="c1"># If .pyx files in self.templates, add .c file to _cached_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_files</span> <span class="o">+=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_template&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s1">&#39;.pyx&#39;</span><span class="p">,</span> <span class="s1">&#39;.c&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pyx&#39;</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_code</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Generic_Code.variables"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.variables">[docs]</a>    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns dictionary of variables for substituion</span>
+<span class="sd">        suitable for use in the templates (formated according</span>
+<span class="sd">        to the syntax of the language)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># To be overloaded</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Generic_Code.as_arrayified_code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.as_arrayified_code">[docs]</a>    <span class="k">def</span> <span class="nf">as_arrayified_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">dummy_groups</span><span class="o">=</span><span class="p">(),</span>
+                           <span class="n">arrayify_groups</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">basename</span><span class="p">,</span> <span class="n">symbols</span> <span class="ow">in</span> <span class="n">dummy_groups</span><span class="p">:</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">_dummify_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">symbols</span><span class="p">)</span>
+
+        <span class="n">scode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wcode</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">basename</span><span class="p">,</span> <span class="n">code_tok</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">arrayify_groups</span><span class="p">:</span>
+            <span class="n">scode</span> <span class="o">=</span> <span class="n">syntaxify_getitem</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">syntax</span><span class="p">,</span> <span class="n">scode</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">code_tok</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scode</span></div>
+
+<div class="viewcode-block" id="Generic_Code.get_cse_code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.get_cse_code">[docs]</a>    <span class="k">def</span> <span class="nf">get_cse_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exprs</span><span class="p">,</span> <span class="n">basename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">dummy_groups</span><span class="o">=</span><span class="p">(),</span> <span class="n">arrayify_groups</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot; Get arrayified code for common subexpression.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        exprs : list of sympy expressions</span>
+<span class="sd">        basename : str</span>
+<span class="sd">            Stem of variable names (default: cse).</span>
+<span class="sd">        dummy_groups : tuples</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">basename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">basename</span> <span class="o">=</span> <span class="s1">&#39;cse&#39;</span>
+        <span class="n">cse_defs</span><span class="p">,</span> <span class="n">cse_exprs</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">cse</span><span class="p">(</span>
+            <span class="n">exprs</span><span class="p">,</span> <span class="n">symbols</span><span class="o">=</span><span class="n">sympy</span><span class="o">.</span><span class="n">numbered_symbols</span><span class="p">(</span><span class="n">basename</span><span class="p">))</span>
+
+        <span class="c1"># Let&#39;s convert the new expressions into (arrayified) code</span>
+        <span class="n">cse_defs_code</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_arrayified_code</span><span class="p">(</span>
+                <span class="n">vexpr</span><span class="p">,</span> <span class="n">dummy_groups</span><span class="p">,</span> <span class="n">arrayify_groups</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">vname</span><span class="p">,</span> <span class="n">vexpr</span> <span class="ow">in</span> <span class="n">cse_defs</span>
+        <span class="p">]</span>
+        <span class="n">cse_exprs_code</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">as_arrayified_code</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">dummy_groups</span><span class="p">,</span> <span class="n">arrayify_groups</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cse_exprs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">cse_defs_code</span><span class="p">,</span> <span class="n">cse_exprs_code</span></div>
+
+<div class="viewcode-block" id="Generic_Code.write_code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.write_code">[docs]</a>    <span class="k">def</span> <span class="nf">write_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_files</span><span class="p">:</span>
+            <span class="c1"># Make sure we start in a clean state</span>
+            <span class="n">rel_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">rel_path</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">rel_path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_files</span><span class="p">:</span>
+            <span class="c1"># Copy files</span>
+            <span class="n">srcpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">dstpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="n">copy</span><span class="p">(</span><span class="n">srcpath</span><span class="p">,</span> <span class="n">dstpath</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_written_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dstpath</span><span class="p">)</span>
+
+        <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">:</span>
+            <span class="c1"># Render templates</span>
+            <span class="n">srcpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">outpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_template&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+            <span class="n">render_mako_template_to</span><span class="p">(</span><span class="n">srcpath</span><span class="p">,</span> <span class="n">outpath</span><span class="p">,</span> <span class="n">subs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_written_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span></div>
+
+    <span class="n">_mod</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Cached compiled binary of the Generic_Code class.</span>
+
+<span class="sd">        To clear cache invoke :meth:`clear_mod_cache`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile_and_import_binary</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span>
+
+<div class="viewcode-block" id="Generic_Code.clear_mod_cache"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.clear_mod_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_mod_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Generic_Code.compile_and_import_binary"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.compile_and_import_binary">[docs]</a>    <span class="k">def</span> <span class="nf">compile_and_import_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returnes a module instance of the extension module.</span>
+<span class="sd">        Consider using the `mod` property instead.</span>
+
+<span class="sd">        Do ::</span>
+<span class="sd">        &gt;&gt;&gt; mod = codeinstnc.compile_and_import_binary()  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; x = mod.cb(&#39;foo&#39;) # doctest: +SKIP</span>
+
+<span class="sd">        Don&#39;t ::</span>
+<span class="sd">        &gt;&gt;&gt; cb = codeinstnc.compile_and_import_binary().cb  # doctest: +SKIP</span>
+
+<span class="sd">        Since that circumvents measurments avoiding singleton</span>
+<span class="sd">        behaviour when multiple different versions of the same</span>
+<span class="sd">        extension module have been compiled. (the shared object</span>
+<span class="sd">        has the same name and identifier)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Interceptor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary_path</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">binary_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">so_file</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Generic_Code.clean"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Generic_Code.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Delete temp dir if not save_temp set at __init__ &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_temp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_written_files&#39;</span><span class="p">):</span>
+                <span class="nb">map</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_written_files</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_remove_tempdir_on_clean&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When Generic_Code object is collected by GC</span>
+<span class="sd">        self._tempdir is (possibly) deleted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile_obj</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile_so</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_compile_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="n">sources</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_files</span>
+        <span class="n">compile_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CompilerRunner</span><span class="p">,</span>
+                        <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span>
+                        <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+                        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">compile_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compile_so</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">so_file</span> <span class="o">=</span> <span class="n">link_py_so</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_files</span><span class="p">,</span>
+                             <span class="n">so_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">so_file</span><span class="p">,</span>
+                             <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span>
+                             <span class="n">fort</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fort</span><span class="p">,</span>
+                             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+                             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">compile_kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">so_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so_file</span> <span class="ow">or</span> <span class="n">so_file</span></div>
+
+
+<div class="viewcode-block" id="Cython_Code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Cython_Code">[docs]</a><span class="k">class</span> <span class="nc">Cython_Code</span><span class="p">(</span><span class="n">Generic_Code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses Cython&#39;s build_ext and distutils</span>
+<span class="sd">    to simplify compilation</span>
+
+<span class="sd">    Could be rewritten to use pyx2obj</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">Cython.Distutils</span> <span class="k">import</span> <span class="n">build_ext</span>
+        <span class="kn">from</span> <span class="nn">setuptools</span> <span class="k">import</span> <span class="n">setup</span>
+        <span class="kn">from</span> <span class="nn">setuptools</span> <span class="k">import</span> <span class="n">Extension</span>
+
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;_template&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_files</span><span class="p">]</span>
+        <span class="n">setup</span><span class="p">(</span>
+            <span class="n">script_name</span><span class="o">=</span><span class="s1">&#39;DUMMY_SCRIPT_NAME&#39;</span><span class="p">,</span>
+            <span class="n">script_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;build_ext&#39;</span><span class="p">,</span>  <span class="s1">&#39;--build-lib&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tempdir</span><span class="p">],</span>
+            <span class="n">include_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_include_dirs</span><span class="p">,</span>
+            <span class="n">cmdclass</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;build_ext&#39;</span><span class="p">:</span> <span class="n">build_ext</span><span class="p">},</span>
+            <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Extension</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">extension_name</span><span class="p">,</span>
+                    <span class="n">sources</span><span class="p">,</span>
+                    <span class="n">libraries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_libraries</span><span class="p">,</span>
+                    <span class="n">library_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_library_dirs</span><span class="p">,</span>
+                    <span class="n">include_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_include_dirs</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="C_Code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.C_Code">[docs]</a><span class="k">class</span> <span class="nc">C_Code</span><span class="p">(</span><span class="n">Generic_Code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    C code class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_integer</span> <span class="o">=</span> <span class="s1">&#39;int&#39;</span>
+    <span class="n">default_real</span> <span class="o">=</span> <span class="s1">&#39;double&#39;</span>
+
+    <span class="n">syntax</span> <span class="o">=</span> <span class="s1">&#39;C&#39;</span>
+    <span class="n">CompilerRunner</span> <span class="o">=</span> <span class="n">CCompilerRunner</span></div>
+
+
+<div class="viewcode-block" id="Cpp_Code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.Cpp_Code">[docs]</a><span class="k">class</span> <span class="nc">Cpp_Code</span><span class="p">(</span><span class="n">C_Code</span><span class="p">):</span>
+    <span class="n">CompilerRunner</span> <span class="o">=</span> <span class="n">CppCompilerRunner</span></div>
+
+
+<div class="viewcode-block" id="F90_Code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.F90_Code">[docs]</a><span class="k">class</span> <span class="nc">F90_Code</span><span class="p">(</span><span class="n">Generic_Code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fortran 90 code class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fort</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Assume `use iso_c_binding`</span>
+    <span class="n">default_integer</span> <span class="o">=</span> <span class="s1">&#39;integer(c_int)&#39;</span>
+    <span class="n">default_real</span> <span class="o">=</span> <span class="s1">&#39;real(c_double)&#39;</span>
+
+    <span class="n">syntax</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span>
+    <span class="n">CompilerRunner</span> <span class="o">=</span> <span class="n">FortranCompilerRunner</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_files</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="c1"># self._cached_files += [</span>
+        <span class="c1">#  x+&#39;.mod&#39; for x in self._get_module_files(self.source_files)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_files</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="n">x</span><span class="o">+</span><span class="s1">&#39;.mod&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">)]</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">F90_Code</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_module_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="n">stripped_lower</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">stripped_lower</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;module&#39;</span><span class="p">):</span>
+                        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">stripped_lower</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;module&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">names</span></div>
+
+
+<div class="viewcode-block" id="make_PCEExtension_for_prebuilding_Code"><a class="viewcode-back" href="../../pycodeexport.html#pycodeexport.codeexport.make_PCEExtension_for_prebuilding_Code">[docs]</a><span class="k">def</span> <span class="nf">make_PCEExtension_for_prebuilding_Code</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">Code</span><span class="p">,</span> <span class="n">prebuild_sources</span><span class="p">,</span> <span class="n">srcdir</span><span class="p">,</span>
+        <span class="n">downloads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If subclass of codeexport.Generic_Code needs to have some of it</span>
+<span class="sd">    sources compiled to objects and cached in a `prebuilt/` directory</span>
+<span class="sd">    at invocation of `setup.py build_ext` this convenience function</span>
+<span class="sd">    makes setting up a PCEExtension easier. Use together with</span>
+<span class="sd">    cmdclass = {&#39;build_ext&#39;: pce_build_ext}.</span>
+
+<span class="sd">    files called &quot;.metadata*&quot; will be added to dist_files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">glob</span>
+    <span class="kn">from</span> <span class="nn">.dist</span> <span class="k">import</span> <span class="n">PCEExtension</span>
+
+    <span class="n">build_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dist_files</span> <span class="o">=</span> <span class="p">[(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span>
+                  <span class="n">x</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Code</span><span class="p">,</span> <span class="s1">&#39;dist_files&#39;</span><span class="p">,</span> <span class="p">[])]</span>
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;build_files&#39;</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">cf</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Code</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cf</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;prebuilt&#39;</span><span class="p">):</span>
+                <span class="n">build_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="n">cf</span><span class="p">))</span>
+                <span class="n">dist_files</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="n">cf</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">prebuilder</span><span class="p">(</span><span class="n">build_temp</span><span class="p">,</span> <span class="n">ext_fullpath</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span>
+                   <span class="n">src_paths</span><span class="p">,</span> <span class="o">**</span><span class="n">prebuilder_kwargs</span><span class="p">):</span>
+        <span class="n">build_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">build_temp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">build_temp</span><span class="p">):</span>
+            <span class="n">make_dirs</span><span class="p">(</span><span class="n">build_temp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">downloads</span><span class="p">:</span>
+            <span class="n">websrc</span><span class="p">,</span> <span class="n">src_md5</span> <span class="o">=</span> <span class="n">downloads</span>
+            <span class="n">download_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_temp</span><span class="p">,</span> <span class="n">srcdir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">download_dir</span><span class="p">):</span>
+                <span class="n">make_dirs</span><span class="p">(</span><span class="n">download_dir</span><span class="p">)</span>
+            <span class="n">download_files</span><span class="p">(</span><span class="n">websrc</span><span class="p">,</span> <span class="n">src_md5</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">src_md5</span><span class="p">,</span>
+                           <span class="n">cwd</span><span class="o">=</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">src_paths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">build_files</span><span class="p">:</span>
+                <span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span>
+                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_temp</span><span class="p">,</span> <span class="n">srcdir</span><span class="p">),</span>
+                     <span class="n">dest_is_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">create_dest_dirs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">only_update</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">only_update</span><span class="p">,</span>
+                     <span class="n">logger</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">ext_fullpath</span><span class="p">),</span> <span class="s1">&#39;prebuilt/&#39;</span><span class="p">))</span>
+        <span class="n">make_dirs</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">objs</span> <span class="o">=</span> <span class="n">compile_sources</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srcdir</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">src_paths</span><span class="p">],</span> <span class="n">destdir</span><span class="o">=</span><span class="n">dst</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">build_temp</span><span class="p">,</span> <span class="n">metadir</span><span class="o">=</span><span class="n">dst</span><span class="p">,</span> <span class="n">only_update</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="o">**</span><span class="n">prebuilder_kwargs</span><span class="p">)</span>
+        <span class="n">glb</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ext_fullpath</span><span class="p">,</span> <span class="s1">&#39;.metadata*&#39;</span><span class="p">)</span>
+        <span class="n">dist_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glb</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">:</span>
+            <span class="c1"># Copy prebuilt objects into lib for distriubtion</span>
+            <span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_temp</span><span class="p">,</span> <span class="n">obj</span><span class="p">),</span>
+                 <span class="n">dst</span><span class="p">,</span> <span class="n">dest_is_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">create_dest_dirs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">only_update</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">only_update</span><span class="p">,</span>
+                 <span class="n">logger</span><span class="o">=</span><span class="n">ext</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">objs</span>
+
+    <span class="n">compile_kwargs</span> <span class="o">=</span> <span class="n">Code</span><span class="o">.</span><span class="n">compile_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;logger&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">compile_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PCEExtension</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="p">[],</span>
+        <span class="n">build_files</span><span class="o">=</span><span class="n">build_files</span><span class="p">,</span>
+        <span class="n">dist_files</span><span class="o">=</span><span class="n">dist_files</span><span class="p">,</span>
+        <span class="n">build_callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">prebuilder</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">prebuild_sources</span><span class="p">,),</span> <span class="n">compile_kwargs</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="n">link_ext</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bjoern I. Dahlgren &lt;bjodah@gmail.com&gt;.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

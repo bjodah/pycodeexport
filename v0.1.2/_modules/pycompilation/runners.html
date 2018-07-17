@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pycompilation.runners &mdash; pycodeexport 0.1.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="pycodeexport 0.1.2 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pycodeexport
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pycodeexport.html">pycodeexport package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pycodeexport</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pycompilation.runners</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pycompilation.runners</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+
+<span class="kn">from</span> <span class="nn">.util</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">HasMetaData</span><span class="p">,</span> <span class="n">get_abspath</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">,</span>
+    <span class="n">find_binary_of_command</span><span class="p">,</span> <span class="n">uniquify</span><span class="p">,</span> <span class="n">missing_or_other_newer</span><span class="p">,</span>
+    <span class="n">CompilationError</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">CompilerRunner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    CompilerRunner class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    sources: iterable of path strings</span>
+<span class="sd">    out: path string</span>
+<span class="sd">    flags: iterable of strings</span>
+<span class="sd">    run_linker: bool</span>
+<span class="sd">    compiler: string</span>
+<span class="sd">        compiler command to call</span>
+<span class="sd">    cwd: path string</span>
+<span class="sd">        root of relative paths</span>
+<span class="sd">    include_dirs: iterable of path strings</span>
+<span class="sd">        include directories</span>
+<span class="sd">    libraries: iterable of strings</span>
+<span class="sd">        libraries to link against.</span>
+<span class="sd">    library_dirs: iterable of path strings</span>
+<span class="sd">        paths to search for shared libraries</span>
+<span class="sd">    std: string</span>
+<span class="sd">        Standard string, e.g. c++11, c99, f2008</span>
+<span class="sd">    options: iterable of strings</span>
+<span class="sd">        pycompilation convenience tags (fast, warn, pic, openmp).</span>
+<span class="sd">        Sets extra compiler flags.</span>
+<span class="sd">    define: iterable of strings</span>
+<span class="sd">        macros to define</span>
+<span class="sd">    undef: iterable of strings</span>
+<span class="sd">        macros to undefine</span>
+<span class="sd">    logger: logging.Logger</span>
+<span class="sd">        info and error level used.</span>
+<span class="sd">    preferred_vendor: string</span>
+<span class="sd">        name of preferred vendor e.g. &#39;gnu&#39; or &#39;intel&#39;</span>
+<span class="sd">    metadir: path string</span>
+<span class="sd">        location where to cache metadata about compilation (choice of compiler)</span>
+<span class="sd">    lib_options: iterable of strings</span>
+<span class="sd">        pycompilation convenience tags e.g. &#39;openmp&#39; and/or &#39;fortran&#39;.</span>
+<span class="sd">        Sets extra libraries.</span>
+<span class="sd">    only_update: bool</span>
+<span class="sd">        Only run compiler if sources are newer than destination. default: False</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    CompilerRunner instance</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    =======</span>
+<span class="sd">    run():</span>
+<span class="sd">        Invoke compilation as a subprocess. Log output if logger present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">compiler_dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Subclass to vendor/binary dict</span>
+
+    <span class="c1"># Standards should be a tuple of supported standards</span>
+    <span class="c1"># (first one will be the default)</span>
+    <span class="n">standards</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">std_formater</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Subclass to dict of binary/formater-callback</span>
+
+    <span class="n">option_flag_dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Lazy unified defaults for compilers</span>
+    <span class="n">metadata_filename</span> <span class="o">=</span> <span class="s1">&#39;.metadata_CompilerRunner&#39;</span>
+
+    <span class="c1"># subclass to be e.g. {&#39;gcc&#39;: &#39;gnu&#39;, ...}</span>
+    <span class="n">compiler_name_vendor_mapping</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">default_compile_options</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;pic&#39;</span><span class="p">,</span> <span class="s1">&#39;warn&#39;</span><span class="p">,</span> <span class="s1">&#39;fast&#39;</span><span class="p">)</span>
+
+    <span class="c1"># http://software.intel.com/en-us/articles/intel-mkl-link-line-advisor</span>
+    <span class="c1"># MKL 11.1 x86-64, *nix, MKLROOT env. set, dynamic linking</span>
+    <span class="c1"># This is _really_ ugly and not portable in any manner.</span>
+    <span class="n">vendor_options_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;intel&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;lapack&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;linkline&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;libraries&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;mkl_avx&#39;</span><span class="p">,</span> <span class="s1">&#39;mkl_intel_lp64&#39;</span><span class="p">,</span> <span class="s1">&#39;mkl_core&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;mkl_intel_thread&#39;</span><span class="p">,</span> <span class="s1">&#39;pthread&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;library_dirs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;$</span><span class="si">{MKLROOT}</span><span class="s1">/lib/intel64&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;include_dirs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;$</span><span class="si">{MKLROOT}</span><span class="s1">/include/intel64/lp64&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;$</span><span class="si">{MKLROOT}</span><span class="s1">/include&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;flags&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-openmp&#39;</span><span class="p">],</span>
+            <span class="p">}</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INTEL_MKL_DYNAMIC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="s1">&#39;linkline&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-Wl,--start-group &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39; $</span><span class="si">{MKLROOT}</span><span class="s1">/lib/intel64/libmkl_intel_ilp64.a&#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39; $</span><span class="si">{MKLROOT}</span><span class="s1">/lib/intel64/libmkl_core.a&#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39; $</span><span class="si">{MKLROOT}</span><span class="s1">/lib/intel64/libmkl_intel_thread.a&#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39; -Wl,--end-group&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;libraries&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;pthread&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;library_dirs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;$</span><span class="si">{MKLROOT}</span><span class="s1">/lib/intel64&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;include_dirs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;$</span><span class="si">{MKLROOT}</span><span class="s1">/include&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;flags&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-openmp&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;def_macros&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MKL_ILP64&#39;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;gnu&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;lapack&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;libraries&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lapack&#39;</span><span class="p">,</span> <span class="s1">&#39;blas&#39;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="s1">&#39;llvm&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;lapack&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;libraries&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lapack&#39;</span><span class="p">,</span> <span class="s1">&#39;blas&#39;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_linker</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">compiler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">libraries</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">library_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">define</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">undef</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict_aliasing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">preferred_vendor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metadir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lib_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">only_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">cwd</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span>
+        <span class="n">metadir</span> <span class="o">=</span> <span class="n">get_abspath</span><span class="p">(</span><span class="n">metadir</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">sources</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadir</span> <span class="o">=</span> <span class="n">metadir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cwd</span> <span class="o">=</span> <span class="n">cwd</span>
+        <span class="k">if</span> <span class="n">compiler</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compiler_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_binary</span> <span class="o">=</span> <span class="n">compiler</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_to_metadata_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadir</span><span class="p">,</span> <span class="s1">&#39;vendor&#39;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compiler_name_vendor_mapping</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">compiler_name</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Find a compiler</span>
+            <span class="k">if</span> <span class="n">preferred_vendor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">preferred_vendor</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;COMPILER_VENDOR&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compiler_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_binary</span><span class="p">,</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">compiler_vendor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_compiler</span><span class="p">(</span>
+                    <span class="n">preferred_vendor</span><span class="p">,</span> <span class="n">metadir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cwd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_binary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;No compiler found (searched: </span><span class="si">{0}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">define</span> <span class="o">=</span> <span class="n">define</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">undef</span> <span class="o">=</span> <span class="n">undef</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span> <span class="o">=</span> <span class="n">include_dirs</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">libraries</span> <span class="o">=</span> <span class="n">libraries</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">library_dirs</span> <span class="o">=</span> <span class="n">library_dirs</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_compile_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">std</span> <span class="o">=</span> <span class="n">std</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">standards</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lib_options</span> <span class="o">=</span> <span class="n">lib_options</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">only_update</span> <span class="o">=</span> <span class="n">only_update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_linker</span> <span class="o">=</span> <span class="n">run_linker</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_linker</span><span class="p">:</span>
+            <span class="c1"># both gnu and intel compilers use &#39;-c&#39; for disabling linker</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;-c&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">std</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">std_formater</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compiler_name</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">std</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkline</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Handle options</span>
+        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compiler_name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="p">[]))</span>
+
+            <span class="c1"># extend based on vendor options dict</span>
+            <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vendor_options_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">compiler_vendor</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="n">opt</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">[]))</span>
+            <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;flags&#39;</span><span class="p">,</span> <span class="s1">&#39;define&#39;</span><span class="p">,</span> <span class="s1">&#39;undef&#39;</span><span class="p">,</span> <span class="s1">&#39;include_dirs&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;library_dirs&#39;</span><span class="p">,</span> <span class="s1">&#39;libraries&#39;</span><span class="p">,</span> <span class="s1">&#39;linkline&#39;</span><span class="p">):</span>
+                <span class="n">extend</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kw</span><span class="p">),</span> <span class="n">kw</span><span class="p">)</span>
+
+        <span class="c1"># libraries</span>
+        <span class="k">for</span> <span class="n">lib_opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lib_options</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">libraries</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lib_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler_name</span><span class="p">][</span><span class="n">lib_opt</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">strict_aliasing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nsa_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;no-strict-aliasing$&quot;</span><span class="p">)</span>
+            <span class="n">sa_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;strict-aliasing$&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">strict_aliasing</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">nsa_re</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">flags</span><span class="p">)):</span>
+                    <span class="k">raise</span> <span class="n">CompilationError</span><span class="p">(</span><span class="s2">&quot;Strict aliasing cannot be&quot;</span> <span class="o">+</span>
+                                           <span class="s2">&quot; both enforced and disabled&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">sa_re</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">flags</span><span class="p">)):</span>
+                    <span class="k">pass</span>  <span class="c1"># already enforced</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-fstrict-aliasing&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">strict_aliasing</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">nsa_re</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">flags</span><span class="p">)):</span>
+                    <span class="k">pass</span>  <span class="c1"># already disabled</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">sa_re</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">flags</span><span class="p">)):</span>
+                        <span class="k">raise</span> <span class="n">CompilationError</span><span class="p">(</span><span class="s2">&quot;Strict aliasing cannot be&quot;</span> <span class="o">+</span>
+                                               <span class="s2">&quot; both enforced and disabled&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-fno-strict-aliasing&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown strict_aliasing=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">strict_aliasing</span><span class="p">))</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">find_compiler</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">preferred_vendor</span><span class="p">,</span> <span class="n">metadir</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span>
+                      <span class="n">use_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify a suitable C/fortran/other compiler</span>
+
+<span class="sd">        When it is possible that the user (un)installs a compiler</span>
+<span class="sd">        inbetween compilations of object files we want to catch</span>
+<span class="sd">        that. This method allows compiler choice to be stored in a</span>
+<span class="sd">        pickled metadata file.  Provide metadir a dirpath to</span>
+<span class="sd">        make the class save choice there in a file with</span>
+<span class="sd">        cls.metadata_filename as name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">cwd</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span>
+        <span class="n">metadir</span> <span class="o">=</span> <span class="n">metadir</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span>
+        <span class="n">metadir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">metadir</span><span class="p">)</span>
+        <span class="n">used_metafile</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">preferred_vendor</span> <span class="ow">and</span> <span class="n">use_meta</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">preferred_vendor</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_from_metadata_file</span><span class="p">(</span>
+                    <span class="n">metadir</span><span class="p">,</span> <span class="s1">&#39;vendor&#39;</span><span class="p">)</span>
+                <span class="n">used_metafile</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">compiler_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">preferred_vendor</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">preferred_vendor</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+                <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">preferred_vendor</span><span class="p">]</span><span class="o">+</span><span class="n">candidates</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown vendor </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">preferred_vendor</span><span class="p">))</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">find_binary_of_command</span><span class="p">([</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">compiler_dict</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">use_meta</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">used_metafile</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">metadir</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Not a dir: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metadir</span><span class="p">))</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">save_to_metadata_file</span><span class="p">(</span><span class="n">metadir</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span>
+                                      <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">save_to_metadata_file</span><span class="p">(</span>
+                <span class="n">metadir</span><span class="p">,</span> <span class="s1">&#39;vendor&#39;</span><span class="p">,</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">compiler_name_vendor_mapping</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;Wrote choice of compiler to: metadir&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">compiler_name_vendor_mapping</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The command below covers most cases, if you need</span>
+<span class="sd">        someting more complex subclass this.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler_binary</span><span class="p">]</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">+</span>
+            <span class="p">[</span><span class="s1">&#39;-U&#39;</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">undef</span><span class="p">]</span> <span class="o">+</span>
+            <span class="p">[</span><span class="s1">&#39;-D&#39;</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">define</span><span class="p">]</span> <span class="o">+</span>
+            <span class="p">[</span><span class="s1">&#39;-I&#39;</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span><span class="p">]</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sources</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_linker</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">([</span><span class="s1">&#39;-L&#39;</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_dirs</span><span class="p">]</span> <span class="o">+</span>
+                    <span class="p">[</span><span class="s1">&#39;-l&#39;</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">libraries</span><span class="p">]</span> <span class="o">+</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">linkline</span><span class="p">)</span>
+        <span class="n">counted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">envvar</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;\$\{(\w+)\}&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">envvar</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">envvar</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">counted</span><span class="p">:</span>
+                    <span class="n">counted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">envvar</span><span class="p">)</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Environment variable &#39;</span><span class="si">{}</span><span class="s2">&#39; undefined.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">envvar</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">CompilationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmd</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_update</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">missing_or_other_newer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cwd</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;No source newer than </span><span class="si">{0}</span><span class="s1">.&#39;</span> <span class="o">+</span>
+                       <span class="s1">&#39; Did not compile&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">uniquify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">)</span>
+
+        <span class="c1"># Append output flag and name to tail of flags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">])</span>
+
+        <span class="c1"># Logging</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">&#39;In &quot;</span><span class="si">{0}</span><span class="s1">&quot;, executing:</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{1}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">())))</span>
+
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">&#39;PWD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cwd</span>
+
+        <span class="c1"># NOTE: the &#39; &#39;.join(self.cmd()) part seems to be necessary for</span>
+        <span class="c1"># intel compilers</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">()),</span>
+                             <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span>
+                             <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                             <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd_outerr</span> <span class="o">=</span> <span class="n">comm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd_outerr</span> <span class="o">=</span> <span class="n">comm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;iso-8859-1&#39;</span><span class="p">)</span>  <span class="c1"># win32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_returncode</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span>
+
+        <span class="c1"># Error handling</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;Error executing &#39;</span><span class="si">{0}</span><span class="s2">&#39; in </span><span class="si">{1}</span><span class="s2">. Command exited with&quot;</span> <span class="o">+</span> \
+                  <span class="sa">u</span><span class="s2">&quot; status </span><span class="si">{2}</span><span class="s2"> after givning the following output: </span><span class="si">{3}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="n">CompilationError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="sa">u</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">()),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_returncode</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cmd_outerr</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_outerr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;...with output:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd_outerr</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_outerr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_returncode</span>
+
+
+<span class="k">class</span> <span class="nc">CCompilerRunner</span><span class="p">(</span><span class="n">CompilerRunner</span><span class="p">,</span> <span class="n">HasMetaData</span><span class="p">):</span>
+
+    <span class="n">compiler_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;gnu&#39;</span><span class="p">,</span> <span class="s1">&#39;gcc&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;intel&#39;</span><span class="p">,</span> <span class="s1">&#39;icc&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;llvm&#39;</span><span class="p">,</span> <span class="s1">&#39;clang&#39;</span><span class="p">),</span>
+    <span class="p">])</span>
+
+    <span class="n">standards</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;c89&#39;</span><span class="p">,</span> <span class="s1">&#39;c90&#39;</span><span class="p">,</span> <span class="s1">&#39;c99&#39;</span><span class="p">,</span> <span class="s1">&#39;c11&#39;</span><span class="p">)</span>  <span class="c1"># First is default</span>
+
+    <span class="n">std_formater</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gcc&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+        <span class="s1">&#39;icc&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+        <span class="s1">&#39;clang&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">option_flag_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gcc&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;pic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-fPIC&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;warn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-Wall&#39;</span><span class="p">,</span> <span class="s1">&#39;-Wextra&#39;</span><span class="p">),</span>
+            <span class="c1"># -march=native not portable and problematic for Mac OSX:</span>
+            <span class="s1">&#39;fast&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-O2&#39;</span><span class="p">,</span> <span class="s1">&#39;-ffast-math&#39;</span><span class="p">,</span> <span class="s1">&#39;-funroll-loops&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-fopenmp&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;icc&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;pic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-fPIC&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;fast&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-fast&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-openmp&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;warn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-Wall&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;clang&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;pic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-fPIC&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;warn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-Wall&#39;</span><span class="p">,</span> <span class="s1">&#39;-Wextra&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;fast&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-O2&#39;</span><span class="p">,</span> <span class="s1">&#39;-ffast-math&#39;</span><span class="p">,</span> <span class="s1">&#39;-funroll-loops&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-fopenmp&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">compiler_name_vendor_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gcc&#39;</span><span class="p">:</span> <span class="s1">&#39;gnu&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;icc&#39;</span><span class="p">:</span> <span class="s1">&#39;intel&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;clang&#39;</span><span class="p">:</span> <span class="s1">&#39;llvm&#39;</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_mk_flag_filter</span><span class="p">(</span><span class="n">cmplr_name</span><span class="p">):</span>  <span class="c1"># helper for class initialization</span>
+    <span class="n">not_welcome</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;g++&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Wimplicit-interface&quot;</span><span class="p">,)}</span>  <span class="c1"># &quot;Wstrict-prototypes&quot;,)}</span>
+    <span class="k">if</span> <span class="n">cmplr_name</span> <span class="ow">in</span> <span class="n">not_welcome</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">fltr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">nw</span> <span class="ow">in</span> <span class="n">not_welcome</span><span class="p">[</span><span class="n">cmplr_name</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">nw</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">fltr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">fltr</span>
+
+
+<span class="k">class</span> <span class="nc">CppCompilerRunner</span><span class="p">(</span><span class="n">CompilerRunner</span><span class="p">,</span> <span class="n">HasMetaData</span><span class="p">):</span>
+
+    <span class="n">compiler_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;gnu&#39;</span><span class="p">,</span> <span class="s1">&#39;g++&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;intel&#39;</span><span class="p">,</span> <span class="s1">&#39;icpc&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;llvm&#39;</span><span class="p">,</span> <span class="s1">&#39;clang++&#39;</span><span class="p">),</span>
+    <span class="p">])</span>
+
+    <span class="c1"># First is the default, c++0x == c++11</span>
+    <span class="n">standards</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;c++98&#39;</span><span class="p">,</span> <span class="s1">&#39;c++0x&#39;</span><span class="p">)</span>
+
+    <span class="n">std_formater</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;g++&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+        <span class="s1">&#39;icpc&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+        <span class="s1">&#39;clang++&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">option_flag_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;g++&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;icpc&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;clang++&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">lib_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;g++&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fortran&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;gfortranbegin&#39;</span><span class="p">,</span> <span class="s1">&#39;gfortran&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;gomp&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;icpc&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;iomp5&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+
+    <span class="p">}</span>
+
+    <span class="n">compiler_name_vendor_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;g++&#39;</span><span class="p">:</span> <span class="s1">&#39;gnu&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;icpc&#39;</span><span class="p">:</span> <span class="s1">&#39;intel&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;clang++&#39;</span><span class="p">:</span> <span class="s1">&#39;llvm&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># g++ takes a superset of gcc arguments</span>
+        <span class="n">new_option_flag_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;g++&#39;</span><span class="p">:</span> <span class="n">CCompilerRunner</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="s1">&#39;gcc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">&#39;icpc&#39;</span><span class="p">:</span> <span class="n">CCompilerRunner</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="s1">&#39;icc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">&#39;clang++&#39;</span><span class="p">:</span> <span class="n">CCompilerRunner</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="s1">&#39;clang&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;g++&#39;</span><span class="p">,</span> <span class="s1">&#39;icpc&#39;</span><span class="p">,</span> <span class="s1">&#39;clang++&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                <span class="n">fltr</span> <span class="o">=</span> <span class="n">_mk_flag_filter</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">keys</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                <span class="n">new_option_flag_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">keys</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">fltr</span><span class="p">,</span> <span class="n">values</span><span class="p">)))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_flag_dict</span> <span class="o">=</span> <span class="n">new_option_flag_dict</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CppCompilerRunner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">FortranCompilerRunner</span><span class="p">(</span><span class="n">CompilerRunner</span><span class="p">,</span> <span class="n">HasMetaData</span><span class="p">):</span>
+
+    <span class="n">standards</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;f95&#39;</span><span class="p">,</span> <span class="s1">&#39;f2003&#39;</span><span class="p">,</span> <span class="s1">&#39;f2008&#39;</span><span class="p">)</span>  <span class="c1"># First is default (F77)</span>
+
+    <span class="n">std_formater</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gfortran&#39;</span><span class="p">:</span> <span class="s1">&#39;-std=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+        <span class="s1">&#39;ifort&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;-stand f</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]),</span>  <span class="c1"># f2008 =&gt; f08</span>
+    <span class="p">}</span>
+
+    <span class="n">compiler_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;gnu&#39;</span><span class="p">,</span> <span class="s1">&#39;gfortran&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;intel&#39;</span><span class="p">,</span> <span class="s1">&#39;ifort&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;llvm&#39;</span><span class="p">,</span> <span class="s1">&#39;gfortran&#39;</span><span class="p">)</span>
+    <span class="p">])</span>
+
+    <span class="n">option_flag_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gfortran&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;warn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-Wall&#39;</span><span class="p">,</span> <span class="s1">&#39;-Wextra&#39;</span><span class="p">,</span> <span class="s1">&#39;-Wimplicit-interface&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;ifort&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;warn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-warn&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,),</span>
+            <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">lib_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gfortran&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;gomp&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;ifort&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;openmp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;iomp5&#39;</span><span class="p">,),</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">compiler_name_vendor_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;gfortran&#39;</span><span class="p">:</span> <span class="s1">&#39;gnu&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ifort&#39;</span><span class="p">:</span> <span class="s1">&#39;intel&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># gfortran takes a superset of gcc arguments</span>
+        <span class="n">new_option_flag_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;gfortran&#39;</span><span class="p">:</span> <span class="n">CCompilerRunner</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="s1">&#39;gcc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">&#39;ifort&#39;</span><span class="p">:</span> <span class="n">CCompilerRunner</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="s1">&#39;icc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;gfortran&#39;</span><span class="p">,</span> <span class="s1">&#39;ifort&#39;</span><span class="p">]:</span>
+            <span class="n">new_option_flag_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">option_flag_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_flag_dict</span> <span class="o">=</span> <span class="n">new_option_flag_dict</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">FortranCompilerRunner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bjoern I. Dahlgren &lt;bjodah@gmail.com&gt;.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
