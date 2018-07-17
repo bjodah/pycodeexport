@@ -1,0 +1,1397 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pycodeexport package &mdash; pycodeexport 0.1.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pycodeexport 0.1.2 documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to pycodeexport’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pycodeexport
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pycodeexport package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pycodeexport.codeexport">pycodeexport.codeexport module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pycodeexport.dist">pycodeexport.dist module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pycodeexport.mako_util">pycodeexport.mako_util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pycodeexport.util">pycodeexport.util module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pycodeexport</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pycodeexport package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pycodeexport.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pycodeexport">
+<span id="pycodeexport-package"></span><h1>pycodeexport package<a class="headerlink" href="#module-pycodeexport" title="Permalink to this headline">¶</a></h1>
+<p>pycodeexport is a Python package for code generation.</p>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pycodeexport.codeexport">
+<span id="pycodeexport-codeexport-module"></span><h2>pycodeexport.codeexport module<a class="headerlink" href="#module-pycodeexport.codeexport" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pycodeexport.codeexport.C_Code">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">C_Code</code><span class="sig-paren">(</span><em>tempdir=None</em>, <em>save_temp=False</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#C_Code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.C_Code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pycodeexport.codeexport.Generic_Code" title="pycodeexport.codeexport.Generic_Code"><code class="xref py py-class docutils literal notranslate"><span class="pre">pycodeexport.codeexport.Generic_Code</span></code></a></p>
+<p>C code class</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">binary_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">mod</span></code></td>
+<td>Cached compiled binary of the Generic_Code class.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="64%" />
+<col width="36%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>basedir</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>build_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>compile_kwargs</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>extension_name</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>obj_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>so_file</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>source_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>templates</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.C_Code.CompilerRunner" title="pycodeexport.codeexport.C_Code.CompilerRunner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompilerRunner</span></code></a></td>
+<td>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.runners.CCompilerRunner</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_arrayified_code</span></code>(expr[,&nbsp;dummy_groups,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean</span></code>()</td>
+<td>Delete temp dir if not save_temp set at __init__</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_mod_cache</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_and_import_binary</span></code>()</td>
+<td>Returnes a module instance of the extension module.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cse_code</span></code>(exprs[,&nbsp;basename,&nbsp;…])</td>
+<td>Get arrayified code for common subexpression.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">variables</span></code>()</td>
+<td>Returns dictionary of variables for substituion suitable for use in the templates (formated according to the syntax of the language)</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_code</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.C_Code.CompilerRunner">
+<code class="descname">CompilerRunner</code><a class="headerlink" href="#pycodeexport.codeexport.C_Code.CompilerRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.runners.CCompilerRunner</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.C_Code.default_integer">
+<code class="descname">default_integer</code><em class="property"> = 'int'</em><a class="headerlink" href="#pycodeexport.codeexport.C_Code.default_integer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.C_Code.default_real">
+<code class="descname">default_real</code><em class="property"> = 'double'</em><a class="headerlink" href="#pycodeexport.codeexport.C_Code.default_real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.C_Code.syntax">
+<code class="descname">syntax</code><em class="property"> = 'C'</em><a class="headerlink" href="#pycodeexport.codeexport.C_Code.syntax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.Cpp_Code">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">Cpp_Code</code><span class="sig-paren">(</span><em>tempdir=None</em>, <em>save_temp=False</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Cpp_Code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Cpp_Code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pycodeexport.codeexport.C_Code" title="pycodeexport.codeexport.C_Code"><code class="xref py py-class docutils literal notranslate"><span class="pre">pycodeexport.codeexport.C_Code</span></code></a></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">binary_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">mod</span></code></td>
+<td>Cached compiled binary of the Generic_Code class.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="64%" />
+<col width="36%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>basedir</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>build_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>compile_kwargs</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>extension_name</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>obj_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>so_file</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>source_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>templates</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Cpp_Code.CompilerRunner" title="pycodeexport.codeexport.Cpp_Code.CompilerRunner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompilerRunner</span></code></a></td>
+<td>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.runners.CppCompilerRunner</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_arrayified_code</span></code>(expr[,&nbsp;dummy_groups,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean</span></code>()</td>
+<td>Delete temp dir if not save_temp set at __init__</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_mod_cache</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_and_import_binary</span></code>()</td>
+<td>Returnes a module instance of the extension module.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cse_code</span></code>(exprs[,&nbsp;basename,&nbsp;…])</td>
+<td>Get arrayified code for common subexpression.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">variables</span></code>()</td>
+<td>Returns dictionary of variables for substituion suitable for use in the templates (formated according to the syntax of the language)</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_code</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Cpp_Code.CompilerRunner">
+<code class="descname">CompilerRunner</code><a class="headerlink" href="#pycodeexport.codeexport.Cpp_Code.CompilerRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.runners.CppCompilerRunner</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.Cython_Code">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">Cython_Code</code><span class="sig-paren">(</span><em>tempdir=None</em>, <em>save_temp=False</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Cython_Code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Cython_Code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pycodeexport.codeexport.Generic_Code" title="pycodeexport.codeexport.Generic_Code"><code class="xref py py-class docutils literal notranslate"><span class="pre">pycodeexport.codeexport.Generic_Code</span></code></a></p>
+<p>Uses Cython’s build_ext and distutils
+to simplify compilation</p>
+<p>Could be rewritten to use pyx2obj</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">binary_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">mod</span></code></td>
+<td>Cached compiled binary of the Generic_Code class.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="64%" />
+<col width="36%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>CompilerRunner</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>basedir</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>build_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>compile_kwargs</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>extension_name</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>obj_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>so_file</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>source_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>syntax</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>templates</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_arrayified_code</span></code>(expr[,&nbsp;dummy_groups,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean</span></code>()</td>
+<td>Delete temp dir if not save_temp set at __init__</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_mod_cache</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_and_import_binary</span></code>()</td>
+<td>Returnes a module instance of the extension module.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cse_code</span></code>(exprs[,&nbsp;basename,&nbsp;…])</td>
+<td>Get arrayified code for common subexpression.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">variables</span></code>()</td>
+<td>Returns dictionary of variables for substituion suitable for use in the templates (formated according to the syntax of the language)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_code</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.DummyGroup">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">DummyGroup</code><span class="sig-paren">(</span><em>basename</em>, <em>symbols</em><span class="sig-paren">)</span><a class="headerlink" href="#pycodeexport.codeexport.DummyGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.DummyGroup.basename" title="pycodeexport.codeexport.DummyGroup.basename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">basename</span></code></a></td>
+<td>Alias for field number 0</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pycodeexport.codeexport.DummyGroup.symbols" title="pycodeexport.codeexport.DummyGroup.symbols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">symbols</span></code></a></td>
+<td>Alias for field number 1</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code>(value)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code>(value,&nbsp;[start,&nbsp;[stop]])</td>
+<td>Raises ValueError if the value is not present.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.DummyGroup.basename">
+<code class="descname">basename</code><a class="headerlink" href="#pycodeexport.codeexport.DummyGroup.basename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.DummyGroup.symbols">
+<code class="descname">symbols</code><a class="headerlink" href="#pycodeexport.codeexport.DummyGroup.symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.F90_Code">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">F90_Code</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#F90_Code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.F90_Code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pycodeexport.codeexport.Generic_Code" title="pycodeexport.codeexport.Generic_Code"><code class="xref py py-class docutils literal notranslate"><span class="pre">pycodeexport.codeexport.Generic_Code</span></code></a></p>
+<p>Fortran 90 code class</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">binary_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">mod</span></code></td>
+<td>Cached compiled binary of the Generic_Code class.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="64%" />
+<col width="36%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>basedir</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>build_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>compile_kwargs</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>extension_name</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>obj_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>so_file</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>source_files</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>templates</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.F90_Code.CompilerRunner" title="pycodeexport.codeexport.F90_Code.CompilerRunner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompilerRunner</span></code></a></td>
+<td>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.runners.FortranCompilerRunner</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_arrayified_code</span></code>(expr[,&nbsp;dummy_groups,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean</span></code>()</td>
+<td>Delete temp dir if not save_temp set at __init__</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_mod_cache</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_and_import_binary</span></code>()</td>
+<td>Returnes a module instance of the extension module.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cse_code</span></code>(exprs[,&nbsp;basename,&nbsp;…])</td>
+<td>Get arrayified code for common subexpression.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">variables</span></code>()</td>
+<td>Returns dictionary of variables for substituion suitable for use in the templates (formated according to the syntax of the language)</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_code</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.F90_Code.CompilerRunner">
+<code class="descname">CompilerRunner</code><a class="headerlink" href="#pycodeexport.codeexport.F90_Code.CompilerRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.runners.FortranCompilerRunner</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.F90_Code.default_integer">
+<code class="descname">default_integer</code><em class="property"> = 'integer(c_int)'</em><a class="headerlink" href="#pycodeexport.codeexport.F90_Code.default_integer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.F90_Code.default_real">
+<code class="descname">default_real</code><em class="property"> = 'real(c_double)'</em><a class="headerlink" href="#pycodeexport.codeexport.F90_Code.default_real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.F90_Code.fort">
+<code class="descname">fort</code><em class="property"> = True</em><a class="headerlink" href="#pycodeexport.codeexport.F90_Code.fort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.F90_Code.syntax">
+<code class="descname">syntax</code><em class="property"> = 'F'</em><a class="headerlink" href="#pycodeexport.codeexport.F90_Code.syntax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.Generic_Code">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">Generic_Code</code><span class="sig-paren">(</span><em>tempdir=None</em>, <em>save_temp=False</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class representing code generating object.</p>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>Regarding syntax:</dt>
+<dd><ul class="first last simple">
+<li>C99 is assumed for ‘C’</li>
+<li>Fortran 2008 (free form) is assumed for ‘F’</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="54%" />
+<col width="46%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>syntax</strong></td>
+<td>(str) Any of the supported syntaxes (‘C’ or ‘F’).</td>
+</tr>
+<tr class="row-even"><td><strong>tempdir_basename:  basename of tempdirs created in e.g. /tmp/</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>basedir</strong></td>
+<td>(str) The path to the directory which relative (source).</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.as_arrayified_code" title="pycodeexport.codeexport.Generic_Code.as_arrayified_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_arrayified_code</span></code></a>(expr[,&nbsp;dummy_groups,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.clean" title="pycodeexport.codeexport.Generic_Code.clean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean</span></code></a>()</td>
+<td>Delete temp dir if not save_temp set at __init__</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.clear_mod_cache" title="pycodeexport.codeexport.Generic_Code.clear_mod_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_mod_cache</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.compile_and_import_binary" title="pycodeexport.codeexport.Generic_Code.compile_and_import_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_and_import_binary</span></code></a>()</td>
+<td>Returnes a module instance of the extension module.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.get_cse_code" title="pycodeexport.codeexport.Generic_Code.get_cse_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cse_code</span></code></a>(exprs[,&nbsp;basename,&nbsp;…])</td>
+<td>Get arrayified code for common subexpression.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.variables" title="pycodeexport.codeexport.Generic_Code.variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">variables</span></code></a>()</td>
+<td>Returns dictionary of variables for substituion suitable for use in the templates (formated according to the syntax of the language)</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.write_code" title="pycodeexport.codeexport.Generic_Code.write_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_code</span></code></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.CompilerRunner">
+<code class="descname">CompilerRunner</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.CompilerRunner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.as_arrayified_code">
+<code class="descname">as_arrayified_code</code><span class="sig-paren">(</span><em>expr</em>, <em>dummy_groups=()</em>, <em>arrayify_groups=()</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.as_arrayified_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.as_arrayified_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.basedir">
+<code class="descname">basedir</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.basedir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.binary_path">
+<code class="descname">binary_path</code><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.binary_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.build_files">
+<code class="descname">build_files</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.build_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete temp dir if not save_temp set at __init__</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.clear_mod_cache">
+<code class="descname">clear_mod_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.clear_mod_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.clear_mod_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.compile_and_import_binary">
+<code class="descname">compile_and_import_binary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.compile_and_import_binary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.compile_and_import_binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returnes a module instance of the extension module.
+Consider using the <cite>mod</cite> property instead.</p>
+<p>Do ::
+&gt;&gt;&gt; mod = codeinstnc.compile_and_import_binary()  # doctest: +SKIP
+&gt;&gt;&gt; x = mod.cb(‘foo’) # doctest: +SKIP</p>
+<p>Don’t ::
+&gt;&gt;&gt; cb = codeinstnc.compile_and_import_binary().cb  # doctest: +SKIP</p>
+<p>Since that circumvents measurments avoiding singleton
+behaviour when multiple different versions of the same
+extension module have been compiled. (the shared object
+has the same name and identifier)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.compile_kwargs">
+<code class="descname">compile_kwargs</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.compile_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.extension_name">
+<code class="descname">extension_name</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.extension_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.fort">
+<code class="descname">fort</code><em class="property"> = False</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.fort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.get_cse_code">
+<code class="descname">get_cse_code</code><span class="sig-paren">(</span><em>exprs</em>, <em>basename=None</em>, <em>dummy_groups=()</em>, <em>arrayify_groups=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.get_cse_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.get_cse_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get arrayified code for common subexpression.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>exprs</strong> : list of sympy expressions</p>
+<p><strong>basename</strong> : str</p>
+<blockquote>
+<div><p>Stem of variable names (default: cse).</p>
+</div></blockquote>
+<p class="last"><strong>dummy_groups</strong> : tuples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.list_attributes">
+<code class="descname">list_attributes</code><em class="property"> = ('_written_files', 'build_files', 'source_files', 'templates', 'obj_files', '_cached_files')</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.list_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.mod">
+<code class="descname">mod</code><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached compiled binary of the Generic_Code class.</p>
+<p>To clear cache invoke <a class="reference internal" href="#pycodeexport.codeexport.Generic_Code.clear_mod_cache" title="pycodeexport.codeexport.Generic_Code.clear_mod_cache"><code class="xref py py-meth docutils literal notranslate"><span class="pre">clear_mod_cache()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.obj_files">
+<code class="descname">obj_files</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.obj_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.so_file">
+<code class="descname">so_file</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.so_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.source_files">
+<code class="descname">source_files</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.source_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.syntax">
+<code class="descname">syntax</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.syntax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.tempdir_basename">
+<code class="descname">tempdir_basename</code><em class="property"> = 'generic_code'</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.tempdir_basename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Generic_Code.templates">
+<code class="descname">templates</code><em class="property"> = None</em><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.templates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.variables">
+<code class="descname">variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary of variables for substituion
+suitable for use in the templates (formated according
+to the syntax of the language)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycodeexport.codeexport.Generic_Code.write_code">
+<code class="descname">write_code</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Generic_Code.write_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Generic_Code.write_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.Interceptor">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">Interceptor</code><span class="sig-paren">(</span><em>binary_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#Interceptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.Interceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is a wrapper for dynamically loaded extension modules
+which share the same name (they end up overwriting the same
+python object).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.codeexport.Loop">
+<em class="property">class </em><code class="descclassname">pycodeexport.codeexport.</code><code class="descname">Loop</code><span class="sig-paren">(</span><em>counter</em>, <em>bounds</em>, <em>body</em><span class="sig-paren">)</span><a class="headerlink" href="#pycodeexport.codeexport.Loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Loop.body" title="pycodeexport.codeexport.Loop.body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">body</span></code></a></td>
+<td>Alias for field number 2</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pycodeexport.codeexport.Loop.bounds" title="pycodeexport.codeexport.Loop.bounds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bounds</span></code></a></td>
+<td>Alias for field number 1</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.codeexport.Loop.counter" title="pycodeexport.codeexport.Loop.counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">counter</span></code></a></td>
+<td>Alias for field number 0</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code>(value)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code>(value,&nbsp;[start,&nbsp;[stop]])</td>
+<td>Raises ValueError if the value is not present.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Loop.body">
+<code class="descname">body</code><a class="headerlink" href="#pycodeexport.codeexport.Loop.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Loop.bounds">
+<code class="descname">bounds</code><a class="headerlink" href="#pycodeexport.codeexport.Loop.bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycodeexport.codeexport.Loop.counter">
+<code class="descname">counter</code><a class="headerlink" href="#pycodeexport.codeexport.Loop.counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pycodeexport.codeexport.make_PCEExtension_for_prebuilding_Code">
+<code class="descclassname">pycodeexport.codeexport.</code><code class="descname">make_PCEExtension_for_prebuilding_Code</code><span class="sig-paren">(</span><em>name</em>, <em>Code</em>, <em>prebuild_sources</em>, <em>srcdir</em>, <em>downloads=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#make_PCEExtension_for_prebuilding_Code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.make_PCEExtension_for_prebuilding_Code" title="Permalink to this definition">¶</a></dt>
+<dd><p>If subclass of codeexport.Generic_Code needs to have some of it
+sources compiled to objects and cached in a <cite>prebuilt/</cite> directory
+at invocation of <cite>setup.py build_ext</cite> this convenience function
+makes setting up a PCEExtension easier. Use together with
+cmdclass = {‘build_ext’: pce_build_ext}.</p>
+<p>files called “.metadata*” will be added to dist_files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycodeexport.codeexport.syntaxify_getitem">
+<code class="descclassname">pycodeexport.codeexport.</code><code class="descname">syntaxify_getitem</code><span class="sig-paren">(</span><em>syntax</em>, <em>scode</em>, <em>basename</em>, <em>token</em>, <em>offset=None</em>, <em>dim=0</em>, <em>match_regex='(\\d+)'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/codeexport.html#syntaxify_getitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.codeexport.syntaxify_getitem" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>syntax</strong> : str</p>
+<blockquote>
+<div><p>Either ‘C’ or ‘F’ for C or Fortran respectively</p>
+</div></blockquote>
+<p><strong>scode: str</strong></p>
+<blockquote>
+<div><p>Code string to transformed.</p>
+</div></blockquote>
+<p><strong>basename</strong> : str</p>
+<blockquote>
+<div><p>Name of (array) variable in scode.</p>
+</div></blockquote>
+<p><strong>token: str</strong></p>
+<blockquote class="last">
+<div><p>Name of (array) variable in code.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">syntaxify_getitem</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;y_i = x_i+i;&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;yout&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">offset</span><span class="o">=</span><span class="s1">&#39;CONST&#39;</span><span class="p">,</span> <span class="n">match_regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;_(\w)&#39;</span><span class="p">)</span>
+<span class="go">&#39;yout[i+CONST] = x_i+i;&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">syntaxify_getitem</span><span class="p">(</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;y7 = x7+i;&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;yout&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">offset</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;yout(7-3,:) = x7+i;&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycodeexport.dist">
+<span id="pycodeexport-dist-module"></span><h2>pycodeexport.dist module<a class="headerlink" href="#module-pycodeexport.dist" title="Permalink to this headline">¶</a></h2>
+<p>Transition module. Deprecated.</p>
+<dl class="function">
+<dt id="pycodeexport.dist.PCEExtension">
+<code class="descclassname">pycodeexport.dist.</code><code class="descname">PCEExtension</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/dist.html#PCEExtension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.dist.PCEExtension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.dist.pce_build_ext">
+<em class="property">class </em><code class="descclassname">pycodeexport.dist.</code><code class="descname">pce_build_ext</code><span class="sig-paren">(</span><em>dist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/dist.html#pce_build_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.dist.pce_build_ext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.dist.pc_build_ext</span></code></p>
+<p>build_ext class for PCEExtension</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">announce</span></code>(msg[,&nbsp;level])</td>
+<td>If the current verbosity level is of greater than or equal to ‘level’ print ‘msg’ to stdout.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_extension</span></code>(ext)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_extensions</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_extensions_list</span></code>(extensions)</td>
+<td>Ensure that the list of extensions (presumably provided as a command option ‘extensions’) is valid, i.e.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_file</span></code>(infile,&nbsp;outfile[,&nbsp;preserve_mode,&nbsp;…])</td>
+<td>Copy a file respecting verbose, dry-run and force flags.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_tree</span></code>(infile,&nbsp;outfile[,&nbsp;preserve_mode,&nbsp;…])</td>
+<td>Copy an entire directory tree respecting verbose, dry-run, and force flags.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_print</span></code>(msg)</td>
+<td>Print ‘msg’ to stdout if the global DEBUG (taken from the DISTUTILS_DEBUG environment variable) flag is true.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_options</span></code>([header,&nbsp;indent])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_dirname</span></code>(option)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_filename</span></code>(option)</td>
+<td>Ensure that ‘option’ is the name of an existing file.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_finalized</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_string</span></code>(option[,&nbsp;default])</td>
+<td>Ensure that ‘option’ is a string; if not defined, set it to ‘default’.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_string_list</span></code>(option)</td>
+<td>Ensure that ‘option’ is a list of strings.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute</span></code>(func,&nbsp;args[,&nbsp;msg,&nbsp;level])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_options</span></code>()</td>
+<td>Set final values for all the options that this command supports.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_swig</span></code>()</td>
+<td>Return the name of the SWIG executable.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_command_name</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_export_symbols</span></code>(ext)</td>
+<td>Return the list of symbols that a shared extension has to export.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ext_filename</span></code>(ext_name)</td>
+<td>Convert the name of an extension (eg.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ext_fullname</span></code>(ext_name)</td>
+<td>Returns the fullname of a given extension name.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ext_fullpath</span></code>(ext_name)</td>
+<td>Returns the path of the filename for a given extension.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_finalized_command</span></code>(command[,&nbsp;create])</td>
+<td>Wrapper around Distribution’s ‘get_command_obj()’ method: find (create if necessary and ‘create’ is true) the command object for ‘command’, call its ‘ensure_finalized()’ method, and return the finalized command object.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_libraries</span></code>(ext)</td>
+<td>Return the list of libraries to link against when building a shared extension.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_outputs</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_source_files</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sub_commands</span></code>()</td>
+<td>Determine the sub-commands that are relevant in the current distribution (ie., that need to be run).</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_options</span></code>()</td>
+<td>Set default values for all the options that this command supports.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_archive</span></code>(base_name,&nbsp;format[,&nbsp;root_dir,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_file</span></code>(infiles,&nbsp;outfile,&nbsp;func,&nbsp;args[,&nbsp;…])</td>
+<td>Special case of ‘execute()’ for operations that process one or more input files and generate one output file.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">mkpath</span></code>(name[,&nbsp;mode])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_file</span></code>(src,&nbsp;dst[,&nbsp;level])</td>
+<td>Move a file respecting dry-run flag.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">reinitialize_command</span></code>(command[,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pycodeexport.dist.pce_build_ext.render_callback" title="pycodeexport.dist.pce_build_ext.render_callback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_callback</span></code></a>(template,&nbsp;outpath,&nbsp;subsd[,&nbsp;…])</td>
+<td>template: either string of path or file like obj.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</td>
+<td>A command’s raison d’etre: carry out the action it exists to perform, controlled by the options initialized in ‘initialize_options()’, customized by other commands, the setup script, the command-line, and config files, and finalized in ‘finalize_options()’.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_command</span></code>(command)</td>
+<td>Run some other command: uses the ‘run_command()’ method of Distribution, which creates and finalizes the command object if necessary and then invokes its ‘run()’ method.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_undefined_options</span></code>(src_cmd,&nbsp;*option_pairs)</td>
+<td>Set the values of any “undefined” options from corresponding option values in some other command object.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">spawn</span></code>(cmd[,&nbsp;search_path,&nbsp;level])</td>
+<td>Spawn an external command respecting dry-run flag.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">swig_sources</span></code>(sources,&nbsp;extension)</td>
+<td>Walk the list of source files in ‘sources’, looking for SWIG interface (.i) files.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">warn</span></code>(msg)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="pycodeexport.dist.pce_build_ext.render_callback">
+<em class="property">static </em><code class="descname">render_callback</code><span class="sig-paren">(</span><em>template</em>, <em>outpath</em>, <em>subsd</em>, <em>only_update=False</em>, <em>cwd=None</em>, <em>prev_subsd=None</em>, <em>create_dest_dirs=False</em>, <em>logger=None</em>, <em>pass_warn_string=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pycodeexport.dist.pce_build_ext.render_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>template: either string of path or file like obj.</p>
+<p>Beware of the only_update option, it pays no attention to
+an updated subsd.</p>
+<p>pass_warn_string: defult True
+if True or instance of str:
+an extra vairable named ‘_warning_in_the_generated_file_not_to_edit’
+is passed with a preset (True) or string warning not to
+directly edit the generated file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycodeexport.dist.pce_sdist">
+<em class="property">class </em><code class="descclassname">pycodeexport.dist.</code><code class="descname">pce_sdist</code><span class="sig-paren">(</span><em>dist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/dist.html#pce_sdist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.dist.pce_sdist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pycompilation.dist.pc_sdist</span></code></p>
+<p>sdist class for PCEExtension</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_defaults</span></code>()</td>
+<td>Add all the default files to self.filelist:   - README or README.txt   - setup.py   - test/test*.py   - all pure Python modules mentioned in setup script   - all files pointed by package_data (build_py)   - all files defined in data_files.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">announce</span></code>(msg[,&nbsp;level])</td>
+<td>If the current verbosity level is of greater than or equal to ‘level’ print ‘msg’ to stdout.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_metadata</span></code>()</td>
+<td>Deprecated API.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">checking_metadata</span></code>()</td>
+<td>Callable used for the check sub-command.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_file</span></code>(infile,&nbsp;outfile[,&nbsp;preserve_mode,&nbsp;…])</td>
+<td>Copy a file respecting verbose, dry-run and force flags.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_tree</span></code>(infile,&nbsp;outfile[,&nbsp;preserve_mode,&nbsp;…])</td>
+<td>Copy an entire directory tree respecting verbose, dry-run, and force flags.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_print</span></code>(msg)</td>
+<td>Print ‘msg’ to stdout if the global DEBUG (taken from the DISTUTILS_DEBUG environment variable) flag is true.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_options</span></code>([header,&nbsp;indent])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_dirname</span></code>(option)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_filename</span></code>(option)</td>
+<td>Ensure that ‘option’ is the name of an existing file.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_finalized</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_string</span></code>(option[,&nbsp;default])</td>
+<td>Ensure that ‘option’ is a string; if not defined, set it to ‘default’.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_string_list</span></code>(option)</td>
+<td>Ensure that ‘option’ is a list of strings.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute</span></code>(func,&nbsp;args[,&nbsp;msg,&nbsp;level])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_options</span></code>()</td>
+<td>Set final values for all the options that this command supports.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_archive_files</span></code>()</td>
+<td>Return the list of archive files created when the command was run, or None if the command hasn’t run yet.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_command_name</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_file_list</span></code>()</td>
+<td>Figure out the list of files to include in the source distribution, and put it in ‘self.filelist’.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_finalized_command</span></code>(command[,&nbsp;create])</td>
+<td>Wrapper around Distribution’s ‘get_command_obj()’ method: find (create if necessary and ‘create’ is true) the command object for ‘command’, call its ‘ensure_finalized()’ method, and return the finalized command object.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sub_commands</span></code>()</td>
+<td>Determine the sub-commands that are relevant in the current distribution (ie., that need to be run).</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_options</span></code>()</td>
+<td>Set default values for all the options that this command supports.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_archive</span></code>(base_name,&nbsp;format[,&nbsp;root_dir,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_distribution</span></code>()</td>
+<td>Create the source distribution(s).</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_file</span></code>(infiles,&nbsp;outfile,&nbsp;func,&nbsp;args[,&nbsp;…])</td>
+<td>Special case of ‘execute()’ for operations that process one or more input files and generate one output file.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_release_tree</span></code>(base_dir,&nbsp;files)</td>
+<td>Create the directory tree that will become the source distribution archive.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">mkpath</span></code>(name[,&nbsp;mode])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_file</span></code>(src,&nbsp;dst[,&nbsp;level])</td>
+<td>Move a file respecting dry-run flag.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune_file_list</span></code>()</td>
+<td>Prune off branches that might slip into the file list as created by ‘read_template()’, but really don’t belong there:   * the build tree (typically “build”)   * the release tree itself (only an issue if we ran “sdist”     previously with –keep-temp, or it aborted)   * any RCS, CVS, .svn, .hg, .git, .bzr, _darcs directories</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_manifest</span></code>()</td>
+<td>Read the manifest file (named by ‘self.manifest’) and use it to fill in ‘self.filelist’, the list of files to include in the source distribution.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_template</span></code>()</td>
+<td>Read and parse manifest template file named by self.template.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">reinitialize_command</span></code>(command[,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pycodeexport.dist.pce_sdist.render_callback" title="pycodeexport.dist.pce_sdist.render_callback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_callback</span></code></a>(template,&nbsp;outpath,&nbsp;subsd[,&nbsp;…])</td>
+<td>template: either string of path or file like obj.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</td>
+<td>A command’s raison d’etre: carry out the action it exists to perform, controlled by the options initialized in ‘initialize_options()’, customized by other commands, the setup script, the command-line, and config files, and finalized in ‘finalize_options()’.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_command</span></code>(command)</td>
+<td>Run some other command: uses the ‘run_command()’ method of Distribution, which creates and finalizes the command object if necessary and then invokes its ‘run()’ method.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_undefined_options</span></code>(src_cmd,&nbsp;*option_pairs)</td>
+<td>Set the values of any “undefined” options from corresponding option values in some other command object.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">spawn</span></code>(cmd[,&nbsp;search_path,&nbsp;level])</td>
+<td>Spawn an external command respecting dry-run flag.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">warn</span></code>(msg)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_manifest</span></code>()</td>
+<td>Write the file list in ‘self.filelist’ (presumably as filled in by ‘add_defaults()’ and ‘read_template()’) to the manifest file named by ‘self.manifest’.</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="pycodeexport.dist.pce_sdist.render_callback">
+<em class="property">static </em><code class="descname">render_callback</code><span class="sig-paren">(</span><em>template</em>, <em>outpath</em>, <em>subsd</em>, <em>only_update=False</em>, <em>cwd=None</em>, <em>prev_subsd=None</em>, <em>create_dest_dirs=False</em>, <em>logger=None</em>, <em>pass_warn_string=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pycodeexport.dist.pce_sdist.render_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>template: either string of path or file like obj.</p>
+<p>Beware of the only_update option, it pays no attention to
+an updated subsd.</p>
+<p>pass_warn_string: defult True
+if True or instance of str:
+an extra vairable named ‘_warning_in_the_generated_file_not_to_edit’
+is passed with a preset (True) or string warning not to
+directly edit the generated file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycodeexport.mako_util">
+<span id="pycodeexport-mako-util-module"></span><h2>pycodeexport.mako_util module<a class="headerlink" href="#module-pycodeexport.mako_util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pycodeexport.mako_util.line_cont_after_delim">
+<code class="descclassname">pycodeexport.mako_util.</code><code class="descname">line_cont_after_delim</code><span class="sig-paren">(</span><em>ctx</em>, <em>s</em>, <em>line_len=40</em>, <em>delim=('</em>, <em>'</em>, <em>)</em>, <em>line_cont_token='&amp;'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/mako_util.html#line_cont_after_delim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.mako_util.line_cont_after_delim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert newline (with preceeding <cite>line_cont_token</cite>) afer
+passing over a delimiter after traversing at least <cite>line_len</cite>
+number of characters</p>
+<p>Mako convenience function. E.g. fortran does not
+accpet lines of arbitrary length.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycodeexport.util">
+<span id="pycodeexport-util-module"></span><h2>pycodeexport.util module<a class="headerlink" href="#module-pycodeexport.util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pycodeexport.util.defaultnamedtuple">
+<code class="descclassname">pycodeexport.util.</code><code class="descname">defaultnamedtuple</code><span class="sig-paren">(</span><em>typename</em>, <em>field_names</em>, <em>defaults=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/util.html#defaultnamedtuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.util.defaultnamedtuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a new subclass of tuple with default values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>typename</strong> : string</p>
+<blockquote>
+<div><p>The name of the class.</p>
+</div></blockquote>
+<p><strong>field_names</strong> : str or iterable</p>
+<blockquote>
+<div><p>An iterable of splitable string.</p>
+</div></blockquote>
+<p><strong>defaults</strong> : iterable</p>
+<blockquote>
+<div><p>Default values for <code class="docutils literal notranslate"><span class="pre">field_names</span></code>, counting <code class="docutils literal notranslate"><span class="pre">[-len(defaults):]</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A new tuple subclass named <code class="docutils literal notranslate"><span class="pre">typename</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Body</span> <span class="o">=</span> <span class="n">defaultnamedtuple</span><span class="p">(</span><span class="s1">&#39;Body&#39;</span><span class="p">,</span> <span class="s1">&#39;x y z density&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Body</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">&#39;Body(x, y, z, density)&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Body</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span>
+<span class="go">OrderedDict([(&#39;x&#39;, 10), (&#39;y&#39;, 5), (&#39;z&#39;, 3), (&#39;density&#39;, 1.0)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycodeexport.util.download_files">
+<code class="descclassname">pycodeexport.util.</code><code class="descname">download_files</code><span class="sig-paren">(</span><em>websrc</em>, <em>files</em>, <em>md5sums</em>, <em>cwd=None</em>, <em>only_if_missing=True</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/util.html#download_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.util.download_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pycodeexport.util.render_mako_template_to">
+<code class="descclassname">pycodeexport.util.</code><code class="descname">render_mako_template_to</code><span class="sig-paren">(</span><em>template</em>, <em>outpath</em>, <em>subsd</em>, <em>only_update=False</em>, <em>cwd=None</em>, <em>prev_subsd=None</em>, <em>create_dest_dirs=False</em>, <em>logger=None</em>, <em>pass_warn_string=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycodeexport/util.html#render_mako_template_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycodeexport.util.render_mako_template_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>template: either string of path or file like obj.</p>
+<p>Beware of the only_update option, it pays no attention to
+an updated subsd.</p>
+<p>pass_warn_string: defult True
+if True or instance of str:
+an extra vairable named ‘_warning_in_the_generated_file_not_to_edit’
+is passed with a preset (True) or string warning not to
+directly edit the generated file.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to pycodeexport’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bjoern I. Dahlgren &lt;bjodah@gmail.com&gt;.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
