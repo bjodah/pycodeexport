@@ -67,8 +67,8 @@ def _dummify_expr(expr, basename, symbs):
 
 
 def syntaxify_getitem(syntax, scode, basename, token, offset=None,
-                      dim=0, match_regex='(\d+)'):
-    """
+                      dim=0, match_regex=r'(\d+)'):
+    r"""
 
     Parameters
     ----------
