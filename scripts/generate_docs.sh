@@ -11,8 +11,7 @@
 NARGS=$#
 PKG=$(find . -maxdepth 2 -name __init__.py -print0 | xargs -0 -n1 dirname | xargs basename)
 AUTHOR=$(head -n 1 AUTHORS)
-sphinx-apidoc --full --force -A "$AUTHOR" --module-first --doc-version=$(python setup.py --version) -F -o doc $PKG/ $(find . -type d -name tests)
-sed -i "s/chempy's/ChemPy's/g" doc/index.rst
+sphinx-apidoc --full --force -A "$AUTHOR" --module-first --doc-version=$(python3 setup.py --version) -F -o doc $PKG/ $(find . -type d -name tests)
 #sed -i 's/Contents/.. include:: ..\/README.rst\n\nContents/g' doc/index.rst
 #echo ".. include:: ../README.rst" >>doc/index.rst
 cat <<EOF >>doc/index.rst
@@ -37,6 +36,7 @@ if 'html_context' in globals():
     html_context.update(context)
 else:
     html_context = context
+
 EOF
 fi
 echo "numpydoc_class_members_toctree = False" >>doc/conf.py

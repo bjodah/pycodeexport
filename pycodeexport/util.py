@@ -3,7 +3,8 @@ from __future__ import print_function, division, absolute_import
 
 import os
 
-from collections import namedtuple, Mapping
+from collections import namedtuple
+from collections.abc import Mapping
 
 from pycompilation.util import (
     md5_of_file, missing_or_other_newer, get_abspath, make_dirs
@@ -12,7 +13,8 @@ from pycompilation.util import (
 try:
     FileNotFoundError
 except NameError:
-    FileNotFoundError = IOError  # Python 2
+    class FileNotFoundError(IOError):
+        pass # Python 2
 
 
 def render_mako_template_to(
@@ -88,6 +90,7 @@ def render_mako_template_to(
             logger.info("Rendering '{}' to '{}'...".format(
                 ifh.name, outpath))
         ofh.write(rendered)
+    ifh.close()
     return outpath
 
 
@@ -103,7 +106,8 @@ def download_files(websrc, files, md5sums, cwd=None,
                 logger.info(msg)
             else:
                 print(msg)
-            open(fpath, 'wt').write(urllib2.urlopen(websrc+f).read())
+            with open(fpath, 'wt') as ofh:
+                ofh.write(urllib2.urlopen(websrc+f).read())
         fmd5 = md5_of_file(fpath).hexdigest()
         if fmd5 != md5sums[f]:
             raise ValueError(("Warning: MD5 sum of {0} differs from "
