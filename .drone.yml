@@ -6,8 +6,7 @@ pipeline:
       - CC=gcc-10
       - CXX=g++-10
     commands:
-      - bash -c '[[ $(python setup.py --version) =~ ^[0-9]+.* ]]'
-      - python2 -m pip install --upgrade wheel setuptools
+      - bash -c '[[ $(python3 setup.py --version) =~ ^[0-9]+.* ]]'
       - python3 -m pip install --upgrade wheel setuptools
       - ./scripts/ci.sh pycodeexport
       - PATH=$HOME/.local/bin:$PATH ./scripts/generate_docs.sh
