@@ -9,7 +9,6 @@ if [[ $1 != v* ]]; then
     exit 1
 fi
 VERSION=${1#v}
-CONDA_PATH=$2
 find . -type f -iname "*.pyc" -exec rm {} +
 find . -type f -iname "*.o" -exec rm {} +
 find . -type f -iname "*.so" -exec rm {} +
@@ -35,7 +34,7 @@ twine upload dist/${PKG}-$VERSION.tar.gz
 set +x
 echo ""
 echo "    You may now create a new github release at with the tag \"v$VERSION\", here is a link:"
-echo "        https://github.com/$4/${5:-$PKG}/releases/new "
+echo "        https://github.com/$2/${3:-$PKG}/releases/new "
 echo "    name the release \"${PKG}-${VERSION}\", and don't foreget to manually attach the file:"
 echo "        $(openssl sha256 $(pwd)/dist/${PKG}-${VERSION}.tar.gz)"
 echo "    Then run:"
