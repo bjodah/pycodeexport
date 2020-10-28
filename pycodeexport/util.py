@@ -14,7 +14,7 @@ try:
     FileNotFoundError
 except NameError:
     class FileNotFoundError(IOError):
-        pass # Python 2
+        pass  # Python 2
 
 
 def render_mako_template_to(
@@ -135,8 +135,8 @@ def defaultnamedtuple(typename, field_names, defaults=()):
     >>> Body.__doc__
     'Body(x, y, z, density)'
     >>> b = Body(10, z=3, y=5)
-    >>> b._asdict()
-    OrderedDict([('x', 10), ('y', 5), ('z', 3), ('density', 1.0)])
+    >>> b._asdict() == {'x': 10, 'y': 5, 'z': 3, 'density': 1.0}
+    True
 
     Returns
     -------
