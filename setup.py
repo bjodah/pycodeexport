@@ -28,7 +28,8 @@ RELEASE_VERSION = os.environ.get(_version_env_var, '')
 CONDA_BUILD = os.environ.get('CONDA_BUILD', '0') == '1'
 if CONDA_BUILD:
     try:
-        RELEASE_VERSION = 'v' + open('__conda_version__.txt', 'rt').readline().rstrip()
+        with open('__conda_version__.txt', 'rt') as ifh:
+            RELEASE_VERSION = 'v' + ifh.readline().rstrip()
     except IOError:
         pass
 
@@ -38,7 +39,8 @@ if len(RELEASE_VERSION) > 1 and RELEASE_VERSION[0] == 'v':
 else:
     TAGGED_RELEASE = False
     # read __version__ attribute from _release.py:
-    exec(io.open(release_py_path, encoding='utf-8').read())
+    with io.open(release_py_path, encoding='utf-8') as ifh:
+        exec(ifh.read())
     if __version__.endswith('git'):
         try:
             _git_version = subprocess.check_output(
@@ -74,11 +76,12 @@ with io.open(_path_under_setup(pkg_name, '__init__.py'), 'rt', encoding='utf-8')
     short_description = f.read().split('"""')[1].split('\n')[1]
 if not 10 < len(short_description) < 255:
     warnings.warn("Short description from __init__.py proably not read correctly.")
-long_description = io.open(_path_under_setup('README.rst'),
-                           encoding='utf-8').read()
+with io.open(_path_under_setup('README.rst'), encoding='utf-8') as ifh:
+    long_description = ifh.read()
 if not len(long_description) > 100:
     warnings.warn("Long description from README.rst probably not read correctly.")
-_author, _author_email = io.open(_path_under_setup('AUTHORS'), 'rt', encoding='utf-8').readline().split('<')
+with io.open(_path_under_setup('AUTHORS'), 'rt', encoding='utf-8') as ifh:
+    _author, _author_email = ifh.readline().split('<')
 
 setup_kwargs = dict(
     name=pkg_name,
@@ -106,8 +109,8 @@ if __name__ == '__main__':
             # depending on tagged version (set ${pkg_name}_RELEASE_VERSION)
             # this will ensure source distributions contain the correct version
             shutil.move(release_py_path, release_py_path+'__temp__')
-            open(release_py_path, 'wt').write(
-                "__version__ = '{}'\n".format(__version__))
+            with open(release_py_path, 'wt') as ofh:
+                ofh.write("__version__ = '{}'\n".format(__version__))
         setup(**setup_kwargs)
     finally:
         if TAGGED_RELEASE:
