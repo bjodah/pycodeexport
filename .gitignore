@@ -19,3 +19,4 @@ examples/*_wrapper.c
 examples/*build*
 *.egg-info/
 doc/
+.coverage
