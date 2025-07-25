@@ -1,0 +1,12 @@
+when:
+  - event: [push]
+
+steps:
+  - name: build-and-test
+    image: cont-reg.bjodah.se:443/bjodah/triceratops-3:33
+    environment:
+      - PYTHONMALLOC=malloc
+    commands:
+      - ./scripts/ci.sh ${CI_REPO_NAME}
+      - bash -lc 'source $(compgen -G /opt-3/cpython-v3.*-apt-deb/bin/activate); ./scripts/generate_docs.sh'
+      - ./scripts/prepare_deploy.sh
